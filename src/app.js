@@ -8,17 +8,20 @@ import cartRouter from './routers/cart_router.js'
 
 //Init servers
 const app=express()
-const httpserver = app.listen(8080,()=>console.log('Empezando....'))
+const httpserver = app.listen(8080,()=>console.log('Corriedo en el puerto 8080....'))
 const socketServer=new Server(httpserver)
 // httpserver.on('error',()=>console.log('ERROR'))
 
 //Config engine templates
 app.use(express.json())
 // app.use(express.urlencoded({extended: true}))// codifica en formato json
-app.use(express.static(__dirname+'/public'))
+
+app.use(express.static(__dirname+'/public/'))
 app.engine('handlebars',handlebars.engine())
 app.set('views',__dirname+'/views')
 app.set('view engine','handlebars')
+//Utilizamos este Middleware genérico para enviar la instancia del servidor de Socket.io a las routes
+//http://127.0.0.1:8080/api/products/home
 app.use((req,res,next)=>{
     req.io=socketServer
     next()
