@@ -51,20 +51,18 @@ class FileManager{
         }
     }
     geById=async(eventID)=>{
-        const list=await this.read()
-        const event=list.find(product=>product.id==eventID)
+        const products=await this.read()
+        const event=products.find(product=>product.id==eventID)
         return event ?? -1;
     }
     delete = async (id) => {
-        const list=await this.read()
-        const buscaElimina = list.find(product => product.id === id)
+        const products=await this.read()
+        const buscaElimina = products.find(product => product.id === id)
         if(buscaElimina){
-            const index = list.indexOf(buscaElimina)
-            list.splice(index, 1);
-            await this.write(list)
-            console.log(`\n\nPRODUCTO ELIMINADO: ID "${id}"EXITOSAMENTE.`);
-        } 
-        return -1
+            const index = products.indexOf(buscaElimina)
+            products.splice(index, 1);
+            await this.write(products)
+        } else return -1;
     }
 }
 export default FileManager
