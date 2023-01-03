@@ -5,6 +5,8 @@ import __dirname from './utils.js'
 
 import productRouter from './routers/products.router.js'
 import cartRouter from './routers/cart_router.js'
+import homeproduct from './routers/home_product.js'
+import realtime from './routers/real_time_products.js'
 
 //Init servers
 const app=express()
@@ -23,6 +25,8 @@ app.use((req,res,next)=>{
     req.io=socketServer
     next()
 })
+app.use('/',homeproduct)
+app.use('/',realtime)
 app.use('/api/products',productRouter)
 app.use('/api/carts',cartRouter)
 

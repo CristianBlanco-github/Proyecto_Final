@@ -45,14 +45,14 @@ router.delete('/:pid', async(req,res)=>{
     req.io.emit('updatedProducts', await fileManager.get());
     res.json({status: 'success',products})
 })
-router.get('/home', async (req, res) =>{
-    const products = await fileManager.get()
-    res.render('home',
-    {
-        title: "Lista de Productos",
-        products: products
-    })
-})
+// router.get('/home', async (req, res) =>{
+//     const products = await fileManager.get()
+//     res.render('home',
+//     {
+//         title: "Lista de Productos",
+//         products: products
+//     })
+// })
 
 router.get('/realtimeproducts', async (req, res) =>{
     const products = await fileManager.get()
