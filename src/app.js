@@ -8,7 +8,7 @@ import run from './run.js'
 //Init servers
 const app=express()
 
-//Config engine templates
+//Config engine template
 app.use(express.json())
 // app.use(express.urlencoded({extended: true}))// codifica en formato json
 app.use(express.static(__dirname+'/public'))
