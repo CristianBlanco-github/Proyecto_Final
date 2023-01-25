@@ -1,16 +1,21 @@
 import { Router } from "express";
-import FileManager from "../manager/file_manager.js";
-const fileManager=new FileManager('products.json')
+import productModel from "../dao/models/products_model.js";
+// import FileManager from "../dao/manager/file_manager.js";
+// const fileManager=new FileManager('products.json')
 const router=Router()
 
-//products/?limit=x
+//products/?limit
 router.get('/', async (req, res) => {
-    const products = await fileManager.get()
+    const products = await productModel.find().lean().exec()
         const limit = req.query.limit
         //Si existe limit, limitar los productos al numero dado
-        if (limit) products.splice(limit, products.length)
-        req.io.emit('updatedProducts', await fileManager.get());
-        res.json({products})
+        if (limit) {
+            res.json(products.slice(0, parseInt(limit)))
+        } else {
+            res.render("home", {
+                products
+            })
+        }
 })
 // router.get('/:pid', async(req,res)=>{
 //     const id= parseInt (req.params.pid)
@@ -18,32 +23,50 @@ router.get('/', async (req, res) => {
 //      if(products === -1) return res.status(404).send('Producto no existe!')
 //     res.json({products})
 // })
-router.post('/',async(req,res)=>{
-    const product = req.body
-    const productAdded = await fileManager.add(product)
-    if(productAdded === -1) return res.status(404).send('Producto no existe!')
-    req.io.emit('updatedProducts', await fileManager.get());
-    res.json({status: 'success', productAdded})
+router.post("/", async (req, res) => {
+    try {
+        const product = req.body
+        if (!product.title) {
+            return res.status(400).json({
+                message: "Error Falta el nombre del producto"
+            })
+        }
+        const productAdded = await productModel.create(product)
+        req.io.emit('updatedProducts', await productModel.find().lean().exec());
+        res.json({
+            status: "Success",
+            productAdded
+        })
+    } catch (error) {
+        console.log(error)
+        res.json({
+            error
+        })
+    }
 })
 router.put('/:pid',async(req, res)=>{
     const id = parseInt(req.params.pid)
     const productToUpdate = req.body
-    const product = await fileManager.geById(parseInt(id))
-    if(product === -1) return res.status(404).send('Producto no existe!')
-    for (const key of Object.keys(productToUpdate)) {
-        product[key] = productToUpdate [key]
-    }
-    await fileManager.update(id,product)
-    req.io.emit('updatedProducts', await fileManager.get());
+    // const product = await productModel.geById(parseInt(id))
+    // if(product === -1) return res.status(404).send('Producto no existe!')
+    // for (const key of Object.keys(productToUpdate)) {
+    //     product[key] = productToUpdate [key]
+    // }
+    const product= await productModel.updateOne({_id:id},productToUpdate)
+    req.io.emit('updatedProducts', await productModel.find().lean().exec());
     res.json({status:'success', product})
 })
 // se elimino el producto 1 a modo de ejemplo
-router.delete('/:pid', async(req,res)=>{
-    const id=parseInt(req.params.pid)
-    const products= await fileManager.delete(id)
-    if(products === -1) return res.status(404).send('Producto no existe!')
-    req.io.emit('updatedProducts', await fileManager.get());
-    res.json({status: 'success',products})
+router.delete("/:pid", async (req, res) => {
+    const id = req.params.pid
+    const productDeleted = await productModel.deleteOne({_id: id})
+
+    req.io.emit('updatedProducts', await productModel.find().lean().exec());
+    res.json({
+        status: "Success",
+        massage: "Product Deleted!",
+        productDeleted
+    })
 })
 // router.get('/home', async (req, res) =>{
 //     const products = await fileManager.get()
@@ -55,7 +78,7 @@ router.delete('/:pid', async(req,res)=>{
 // })
 
 router.get('/realtimeproducts', async (req, res) =>{
-    const products = await fileManager.get()
+    const products = await productModel.find().lean().exec()
     res.render('realTimeProducts',
     {
         title: "Lista de Productos",

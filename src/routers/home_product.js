@@ -1,5 +1,5 @@
 import { Router } from "express";
-import FileManager from "../manager/file_manager.js";
+import FileManager from "../dao/manager/file_manager.js";
 const fileManager=new FileManager('products.json')
 const router=Router()
 router.get('/home', async (req, res) =>{
