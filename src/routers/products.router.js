@@ -1,21 +1,13 @@
 import { Router } from "express";
 import productModel from "../dao/models/products_model.js";
-// import FileManager from "../dao/manager/file_manager.js";
-// const fileManager=new FileManager('products.json')
 const router=Router()
 
 //products/?limit
 router.get('/', async (req, res) => {
     const products = await productModel.find().lean().exec()
-        const limit = req.query.limit
+        const limit = req.query.limit || 5
         //Si existe limit, limitar los productos al numero dado
-        if (limit) {
-            res.json(products.slice(0, parseInt(limit)))
-        } else {
-            res.render("home", {
-                products
-            })
-        }
+        res.json(products.slice(0, parseInt(limit)))
 })
 // router.get('/:pid', async(req,res)=>{
 //     const id= parseInt (req.params.pid)
@@ -60,7 +52,6 @@ router.put('/:pid',async(req, res)=>{
 router.delete("/:pid", async (req, res) => {
     const id = req.params.pid
     const productDeleted = await productModel.deleteOne({_id: id})
-
     req.io.emit('updatedProducts', await productModel.find().lean().exec());
     res.json({
         status: "Success",

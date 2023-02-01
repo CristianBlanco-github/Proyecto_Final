@@ -4,6 +4,7 @@ import chatRouter from "./routers/chat_router.js"
 import messagesModel from "./dao/models/messages_model.js";
 import homeproduct from './routers/home_product.js'
 import realtime from './routers/real_time_products.js'
+import productViewsRouter from './routers/products_views_router.js'
 
 
 const run = (socketServer, app) => {
@@ -13,6 +14,7 @@ const run = (socketServer, app) => {
     })
     app.use('/',homeproduct)
     app.use('/',realtime)
+    app.use("/products", productViewsRouter)
     app.use("/api/products", productRouter)
     app.use("/api/carts", cartRouter)
     app.use("/api/chat", chatRouter)

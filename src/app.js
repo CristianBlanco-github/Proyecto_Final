@@ -8,7 +8,7 @@ import run from './run.js'
 //Init servers
 const app=express()
 
-//Config engine template
+//Config engine templates
 app.use(express.json())
 // app.use(express.urlencoded({extended: true}))// codifica en formato json
 app.use(express.static(__dirname+'/public'))
@@ -17,7 +17,7 @@ app.set('views',__dirname+'/views')
 app.set('view engine','handlebars')
 
 
-mongoose.connect("mongodb+srv://cristian:rheO0OsoktBDF5fp@cluster0.bqge7dg.mongodb.net/?retryWrites=true&w=majority", {
+mongoose.connect("mongodb://127.0.0.1:27017", {
     dbName: "ecommerce"
 }, (error) => {
     if(error){
