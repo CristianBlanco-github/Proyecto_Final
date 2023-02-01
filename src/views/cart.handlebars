@@ -13,13 +13,11 @@
         <td><strong>Producto</strong></td>
         <td><strong>Cantidad</strong></td>
     </tr>
-    
     {{#each products}}
         <tr>
             <td> <a href="/api/products/products/{{this.product._id}}">{{this.title}} {{this.product.description}}</a></td>
             <td>{{this.quantity}}</td>
         </tr>
     {{/each}}  
-    
 </table>
 {{/if}}
