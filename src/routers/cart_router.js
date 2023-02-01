@@ -4,7 +4,6 @@ import CartManager from "../dao/manager/cart_manager.js";
 import cartModel from "../dao/models/cart_model.js";
 const cartManager=new CartManager()
 
-
 router.get("/", async (req, res) => {
     const carts = await cartModel.find().lean().exec()
     res.json({ carts })
