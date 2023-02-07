@@ -4,21 +4,40 @@ import { Server } from 'socket.io'
 import __dirname from './utils.js'
 import mongoose from 'mongoose'
 import run from './run.js'
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import initializePassport from "./config/passport.config.js";
+import passport from "passport";
 
 //Init servers
 const app=express()
 
 //Config engine templates
 app.use(express.json())
-// app.use(express.urlencoded({extended: true}))// codifica en formato json
+app.use(express.urlencoded({extended: true}))// codifica en formato json
 app.use(express.static(__dirname+'/public'))
 app.engine('handlebars',handlebars.engine())
 app.set('views',__dirname+'/views')
 app.set('view engine','handlebars')
 
+const MONGO_URI= "mongodb://127.0.0.1:27017"
+const DB_NAME="ecommerce"
+// Configurar sessions
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: MONGO_URI,
+        dbName: DB_NAME
+    }),
+    secret: 'mysecret',
+    resave: true,
+    saveUninitialized: true
+}))
+initializePassport()
+app.use(passport.initialize())
+app.use(passport.session())
 
-mongoose.connect("mongodb://127.0.0.1:27017", {
-    dbName: "ecommerce"
+mongoose.connect(MONGO_URI, {
+    dbName: DB_NAME
 }, (error) => {
     if(error){
         console.log("DB No conectado...")

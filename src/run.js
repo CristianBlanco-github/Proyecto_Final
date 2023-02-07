@@ -5,6 +5,7 @@ import messagesModel from "./dao/models/messages_model.js";
 import homeproduct from './routers/home_product.js'
 import realtime from './routers/real_time_products.js'
 import productViewsRouter from './routers/products_views_router.js'
+import sessionRouter from './routers/session_router.js'
 
 
 const run = (socketServer, app) => {
@@ -12,8 +13,17 @@ const run = (socketServer, app) => {
         req.io = socketServer
         next()
     })
+// // Middleware
+// function requireAuth(req, res, next) {
+//     if(req.session?.user) {
+//         return next()
+//     } else {
+//         return res.status(401).json({status: 'error', payload: 'not authenticated'})
+//     }
+// }
     app.use('/',homeproduct)
     app.use('/',realtime)
+    app.use("/session", sessionRouter)
     app.use("/products", productViewsRouter)
     app.use("/api/products", productRouter)
     app.use("/api/carts", cartRouter)
