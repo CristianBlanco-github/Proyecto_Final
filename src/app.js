@@ -35,7 +35,7 @@ app.use(session({
 initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
-mongoose.set('strictQuery',false)
+mongoose.set('strictQuery',true)
 mongoose.connect(MONGO_URI, {
     dbName: DB_NAME
 }, (error) => {

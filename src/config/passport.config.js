@@ -1,8 +1,8 @@
 import passport from "passport";
 import local from "passport-local"
-import GithubStrategy from 'passport-github2'
 import UserModel from "../dao/models/user_model.js";
 import { createHash, isValidPassword } from '../utils.js'
+import GitHubStrategy from "passport-github2"
 
 const LocalStrategy = local.Strategy
 const initializePassport = () => {
@@ -36,6 +36,28 @@ const initializePassport = () => {
 
 
     }))
+    passport.use('github', new GitHubStrategy({
+        clientID: "Iv1.6efbd44c6d669031",
+        clientSecret: "934d4dbd6174715b7c5c9a7eceef822111ca4ec0",
+        callbackURL: "http://127.0.0.1:8080/session/githubcallback"
+    }, async(accessToken, refreshToken, profile, done) => {
+
+        try {
+            const user = await UserModel.findOne({email: profile._json.email})
+            if(user) return done(null, user)
+
+            const newUser = await UserModel.create({
+                first_name: profile._json.name,
+                last_name: "",
+                email: profile._json.email,
+                password: ""
+            })
+
+            return done(null, newUser)
+        } catch (error) {
+            return done('Error to login with github' + error)
+        }
+    }))
 
     passport.use('login', new LocalStrategy({
         usernameField: 'email'
@@ -64,29 +86,6 @@ const initializePassport = () => {
             return done(null, user)
         } catch (error) {
             console.log("error")
-        }
-    }))
-    passport.use('github', new GithubStrategy({
-        clientID: "Iv1.6efbd44c6d669031",
-        clientSecret: "934d4dbd6174715b7c5c9a7eceef822111ca4ec0",
-        callbackURL: "http://127.0.0.1:8080/session/githubcallback",
-        scope:['user:email']
-    },async(accessToken, refreshToken, profile, done)=>{
-        console.log(profile);
-        try {
-            const user = await UserModel.findOne({email:profile.emails[0].value})
-            if (user) return done(null, user);
-
-            const newUser = await UserModel.create({
-                first_name:profile._json.name,
-                last_name:'',
-                email: profile.emails[0].value,
-                password: ''
-            })
-            return done(null, newUser)
-        } catch (error) {
-            return done('Error to login with GitHub: ',error)
-            
         }
     }))
     passport.serializeUser((user, done) => {
