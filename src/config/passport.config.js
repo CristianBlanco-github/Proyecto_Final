@@ -1,5 +1,6 @@
 import passport from "passport";
 import local from "passport-local"
+import GithubStrategy from 'passport-github2'
 import UserModel from "../dao/models/user_model.js";
 import { createHash, isValidPassword } from '../utils.js'
 
@@ -40,10 +41,22 @@ const initializePassport = () => {
         usernameField: 'email'
     }, async (username, password, done) => {
         try {
+            if(username === 'adminCoder@coder.com' && password === 'adminCod3r123') {
+                const admin = {
+                    _id: '63e4ee6a795025c3ccb9b29a',
+                    email: username,
+                    password,
+                    first_name: 'Admin',
+                    last_name: 'Coder',
+                    age: 100,
+                    role: 'admin'
+                }
+                return done(null, admin)
+            }
             const user = await UserModel.findOne({email: username})
             if(!user) {
                 console.log("User dont exist");
-                return done(null, user)
+                return done(null, false)
             }
 
             if(!isValidPassword(user, password)) return done(null, false)
@@ -53,16 +66,42 @@ const initializePassport = () => {
             console.log("error")
         }
     }))
+    passport.use('github', new GithubStrategy({
+        clientID: "Iv1.6efbd44c6d669031",
+        clientSecret: "934d4dbd6174715b7c5c9a7eceef822111ca4ec0",
+        callbackURL: "http://127.0.0.1:8080/session/githubcallback",
+        scope:['user:email']
+    },async(accessToken, refreshToken, profile, done)=>{
+        console.log(profile);
+        try {
+            const user = await UserModel.findOne({email:profile.emails[0].value})
+            if (user) return done(null, user);
 
+            const newUser = await UserModel.create({
+                first_name:profile._json.name,
+                last_name:'',
+                email: profile.emails[0].value,
+                password: ''
+            })
+            return done(null, newUser)
+        } catch (error) {
+            return done('Error to login with GitHub: ',error)
+            
+        }
+    }))
     passport.serializeUser((user, done) => {
         done(null, user._id)
     })
-
+    
     passport.deserializeUser(async (id, done) => {
         const user = await UserModel.findById(id)
         done(null, user)
     })
 
 }
+    
+
+
+
 
 export default initializePassport;

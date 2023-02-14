@@ -24,6 +24,7 @@ router.get('/login', (req, res) => {
 
 // API para login
 router.post('/login', passport.authenticate('login', { failureRedirect: '/session/faillogin' }), async (req, res) => {
+    
     if (!req.user) {
         return res.status(400).send({ status: "error", error: "Invalid credentiales" })
     }
@@ -54,6 +55,19 @@ router.get('/logout', (req, res) => {
     })
 })
 
-
-
+// Iniciar sesión con Github
+router.get(
+    '/github',
+    passport.authenticate('github'),
+    async(req, res) => {}
+)
+router.get('/githudcallback',
+passport.authenticate('githud',{failureRedirect:'/login'}),
+async(req,res)=>{
+    console.log('callback',req.user);
+    req.session.user=req.user
+    console.log("User Session:",req.session.user);
+    res.redirect('/')
+}
+)
 export default router
