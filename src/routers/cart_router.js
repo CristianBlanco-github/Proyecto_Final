@@ -8,15 +8,11 @@ router.get("/", async (req, res) => {
     const carts = await cartModel.find().lean().exec()
     res.json({ carts })
 })
-router.get('/:cid', async (req, res) => {
-    try {
-        const cartId = req.params.cid
-        const selCart = await cartManager.getCartById(cartId)
-        res.render('cart', selCart)
-    } catch (error) {
-        res.status(401).render('cart', {status: 'error', error: 'Not found'})
-    }
-
+router.get("/:id", async (req, res) => {
+    const id = req.params.id
+    const cart = await cartModel.findOne({_id: id}).lean()
+    const productsInCart = cart.products
+    res.render("cart", {productsInCart})
 })
 
 router.delete("/:cid/product/:pid",async(req,res)=>{
@@ -65,6 +61,7 @@ router.post("/:cid/product/:pid",async(req, res)=>{
     }
     await cart.save()
     res.json({status:'success', cart})
+    res.redirect("/api/carts/63dc3a34053dd3ab71540deb")
 })
 //PUT
 router.put("/:cid/product/:pid", async (req, res) => {

@@ -6,6 +6,7 @@ import homeproduct from './routers/home_product.js'
 import realtime from './routers/real_time_products.js'
 import productViewsRouter from './routers/products_views_router.js'
 import sessionRouter from './routers/session_router.js'
+import { passportCall } from "./utils.js";
 
 
 const run = (socketServer, app) => {
@@ -24,7 +25,7 @@ const run = (socketServer, app) => {
     app.use('/',homeproduct)
     app.use('/',realtime)
     app.use("/session", sessionRouter)
-    app.use("/products", productViewsRouter)
+    app.use("/products",passportCall("jwt"), productViewsRouter)
     app.use("/api/products", productRouter)
     app.use("/api/carts", cartRouter)
     app.use("/api/chat", chatRouter)

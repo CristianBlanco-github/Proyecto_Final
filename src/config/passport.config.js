@@ -1,10 +1,15 @@
 import passport from "passport";
 import local from "passport-local"
 import UserModel from "../dao/models/user_model.js";
-import { createHash, isValidPassword } from '../utils.js'
 import GitHubStrategy from "passport-github2"
+import jwt from 'passport-jwt'
+import { jwtPrivateKey } from "./credentials.js"; 
+import { createHash, isValidPassword, generateToken,extractCookie } from "../utils.js"
+import cartModel from "../dao/models/cart_model.js"
 
 const LocalStrategy = local.Strategy
+const JWTStrategy = jwt.Strategy
+const ExtractJWT = jwt.ExtractJwt
 const initializePassport = () => {
 
     passport.use('register', new LocalStrategy({
@@ -25,7 +30,8 @@ const initializePassport = () => {
                 last_name,
                 email,
                 age,
-                password: createHash(password)
+                password: createHash(password),
+                cart: await cartModel.create({})
             }
             const result = await UserModel.create(newUser)
             
@@ -50,7 +56,10 @@ const initializePassport = () => {
                 first_name: profile._json.name,
                 last_name: "",
                 email: profile._json.email,
-                password: ""
+                age: profile._json.age,
+                password: "",
+                cart: await cartModel.create({}),
+                role: "user"
             })
 
             return done(null, newUser)
@@ -82,12 +91,21 @@ const initializePassport = () => {
             }
 
             if(!isValidPassword(user, password)) return done(null, false)
-
+            const token = generateToken(user)
+            user.token = token
             return done(null, user)
         } catch (error) {
             console.log("error")
         }
     }))
+
+    passport.use('jwt', new JWTStrategy({
+        jwtFromRequest: ExtractJWT.fromExtractors([extractCookie]),
+        secretOrKey: jwtPrivateKey
+    }, async(jwt_payload, done) => {
+        done(null, jwt_payload)
+    }))
+
     passport.serializeUser((user, done) => {
         done(null, user._id)
     })
@@ -96,11 +114,6 @@ const initializePassport = () => {
         const user = await UserModel.findById(id)
         done(null, user)
     })
-
 }
-    
-
-
-
 
 export default initializePassport;

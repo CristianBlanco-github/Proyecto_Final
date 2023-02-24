@@ -7,6 +7,7 @@ import run from './run.js'
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import initializePassport from "./config/passport.config.js";
+import cookieParser from "cookie-parser";
 import passport from "passport";
 
 //Init servers
@@ -14,6 +15,7 @@ const app=express()
 
 //Config engine templates
 app.use(express.json())
+app.use(cookieParser())
 app.use(express.urlencoded({extended: true}))// codifica en formato json
 app.use(express.static(__dirname+'/public'))
 app.engine('handlebars',handlebars.engine())
@@ -24,18 +26,14 @@ const MONGO_URI= "mongodb+srv://cristian:rheO0OsoktBDF5fp@cluster0.bqge7dg.mongo
 const DB_NAME="ecommerce"
 // Configurar sessions
 app.use(session({
-    store: MongoStore.create({
-        mongoUrl: MONGO_URI,
-        dbName: DB_NAME
-    }),
     secret: 'mysecret',
-    resave: true,
+    resave: false,
     saveUninitialized: true
 }))
 initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
-mongoose.set('strictQuery',true)
+
 mongoose.connect(MONGO_URI, {
     dbName: DB_NAME
 }, (error) => {
