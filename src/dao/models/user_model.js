@@ -15,10 +15,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
-    }
+    },
+    cart: {
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "carts"
+        }
+    },
 
 })
-
+mongoose.set("strictQuery", false)
 const UserModel = mongoose.model(userCollection, userSchema)
 
 export default UserModel

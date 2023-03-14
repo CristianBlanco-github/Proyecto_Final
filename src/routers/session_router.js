@@ -1,8 +1,16 @@
 import { Router } from "express";
 import passport from "passport";
+import { jwtCookieName } from "../config/credentials.js";
+import { authorization, passportCall } from "../utils.js";
 
 const router = Router()
-
+//perfil
+router.get('/current', passportCall('jwt'), authorization('user'), (req, res)=>{
+    console.log('get: ',req.user);
+    res.render('sessions/profile', {
+        user: req.user.user
+    })
+})
 //Vista para registrar usuarios
 router.get('/register', (req, res) => {
     res.render('sessions/register')
@@ -28,14 +36,7 @@ router.post('/login', passport.authenticate('login', { failureRedirect: '/sessio
     if (!req.user) {
         return res.status(400).send({ status: "error", error: "Invalid credentiales" })
     }
-    req.session.user = {
-        first_name: req.user.first_name,
-        last_name: req.user.last_name,
-        email: req.user.email,
-        age: req.user.age,
-    }
-
-    res.redirect('/products')
+    res.cookie(jwtCookieName, req.user.token).redirect('/products')
 })
 router.get('/faillogin', (req, res) => {
     res.send({error: "Fail Login"})
@@ -47,12 +48,7 @@ router.get('/profile', (req, res) => {
 
 // Cerrar Session
 router.get('/logout', (req, res) => {
-    req.session.destroy(err => {
-        if (err) {
-            console.log(err);
-            res.status(500).render('errors/base', { error: err })
-        } else res.redirect('/session/login')
-    })
+    res.clearCookie(jwtCookieName).redirect('/session/login');
 })
 
 // Iniciar sesión con Github
