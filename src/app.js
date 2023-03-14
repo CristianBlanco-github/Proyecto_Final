@@ -22,7 +22,7 @@ app.engine('handlebars',handlebars.engine())
 app.set('views',__dirname+'/views')
 app.set('view engine','handlebars')
 
-const MONGO_URI= "mongodb+srv://cristian:rheO0OsoktBDF5fp@cluster0.bqge7dg.mongodb.net/?retryWrites=true&w=majority"
+const MONGO_URI= "mongodb+srv://cristian:JzzEIaxzqiniLvcI@cluster0.bqge7dg.mongodb.net/?retryWrites=true&w=majority"
 const DB_NAME="ecommerce"
 // Configurar sessions
 app.use(session({

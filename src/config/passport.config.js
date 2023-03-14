@@ -16,7 +16,6 @@ const initializePassport = () => {
         passReqToCallback: true,
         usernameField: 'email'
     }, async (req, username, password, done) => {
-
         const {first_name, last_name, email, age } = req.body
         try {
             const user = await UserModel.findOne({email: username})
@@ -24,7 +23,6 @@ const initializePassport = () => {
                 console.log("User already exits");
                 return done(null, false)
             }
-
             const newUser = {
                 first_name,
                 last_name,
@@ -34,7 +32,6 @@ const initializePassport = () => {
                 cart: await cartModel.create({})
             }
             const result = await UserModel.create(newUser)
-            
             return done(null, result)
         } catch (error) {
             return done("[LOCAL] Error al obtener user " + error)
@@ -42,16 +39,16 @@ const initializePassport = () => {
 
 
     }))
+    
+    //Inicio con gitHub
     passport.use('github', new GitHubStrategy({
         clientID: "Iv1.6efbd44c6d669031",
         clientSecret: "934d4dbd6174715b7c5c9a7eceef822111ca4ec0",
         callbackURL: "http://127.0.0.1:8080/session/githubcallback"
     }, async(accessToken, refreshToken, profile, done) => {
-
         try {
             const user = await UserModel.findOne({email: profile._json.email})
             if(user) return done(null, user)
-
             const newUser = await UserModel.create({
                 first_name: profile._json.name,
                 last_name: "",
@@ -61,7 +58,6 @@ const initializePassport = () => {
                 cart: await cartModel.create({}),
                 role: "user"
             })
-
             return done(null, newUser)
         } catch (error) {
             return done('Error to login with github' + error)
@@ -89,7 +85,6 @@ const initializePassport = () => {
                 console.log("User dont exist");
                 return done(null, false)
             }
-
             if(!isValidPassword(user, password)) return done(null, false)
             const token = generateToken(user)
             user.token = token
@@ -99,6 +94,7 @@ const initializePassport = () => {
         }
     }))
 
+    //JWT
     passport.use('jwt', new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromExtractors([extractCookie]),
         secretOrKey: jwtPrivateKey
