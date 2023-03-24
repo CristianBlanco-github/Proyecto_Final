@@ -13,5 +13,4 @@ export default class Cart {
     create = async(data) => {
         return await this.fileManager.add(data)
     }
-
 }

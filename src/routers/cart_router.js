@@ -73,12 +73,12 @@ router.post("/:cid/purchase", passportCall('jwt'), authorization('user'), async 
             })
         }
     }))
-     if(totalPrice > 0)
-      await TicketModel.create({
-          purchaser : req.user.user.email,
-          amount : totalPrice,
-          code: uuidv4()
-      })
+    if(totalPrice > 0)
+    await TicketModel.create({
+        purchaser : req.user.user.email,
+        amount : totalPrice,
+        code: uuidv4()
+    })
     res.json({status: "Success"})
 })
 

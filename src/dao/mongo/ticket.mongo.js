@@ -1,8 +1,6 @@
 import ticketsModel from './models/ticket.model.js'
 
 class TicketMongo{
-
-    
     get = async (parameter) => {
         return await ticketsModel.findOne(parameter).lean().exec()
     } 
@@ -18,9 +16,5 @@ class TicketMongo{
     delete = async (id) => {
         return await ticketsModel.deleteOne({_id:id})        
     }
-
 }
-
-//module.exports = TicketManager;
-
 export default TicketMongo;

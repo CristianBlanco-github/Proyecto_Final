@@ -22,7 +22,6 @@ const userSchema = new mongoose.Schema({
             ref: "carts"
         }
     },
-
 })
 mongoose.set("strictQuery", false)
 const UserModel = mongoose.model(userCollection, userSchema)

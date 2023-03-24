@@ -2,7 +2,6 @@ import ProductModel from "./models/products.model.js"
 
 export default class Product {
     constructor() {}
-
     get = async() => {
         return await ProductModel.find().lean().exec()
     }
@@ -26,5 +25,4 @@ export default class Product {
     update = async (id, productToUpdate) => {
         return await ProductModel.updateOne({_id: id}, productToUpdate)
     }
-
 }

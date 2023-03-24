@@ -14,7 +14,7 @@ addForm.addEventListener("submit", async (e) => {
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-          },
+        },
         body: JSON.stringify({
             title,
             description,

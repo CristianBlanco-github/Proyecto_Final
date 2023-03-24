@@ -2,10 +2,8 @@ import express from 'express';
 import handlebars from 'express-handlebars'
 import { Server } from 'socket.io'
 import __dirname from './utils.js'
-import mongoose from 'mongoose'
 import run from './run.js'
 import session from 'express-session';
-//import MongoStore from 'connect-mongo';
 import initializePassport from "./config/passport.config.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";

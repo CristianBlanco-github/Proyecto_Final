@@ -2,7 +2,6 @@ import CartModel from "./models/cart_model.js"
 
 export default class Cart {
     constructor() {}
-
     get = async() => {
         return await CartModel.find().lean().exec()
     }
