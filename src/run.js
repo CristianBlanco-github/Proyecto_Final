@@ -1,10 +1,10 @@
 import productRouter from "./routers/products.router.js"
 import cartRouter from "./routers/cart_router.js"
 import chatRouter from "./routers/chat_router.js"
-import messagesModel from "./dao/models/messages_model.js";
 import productViewsRouter from './routers/products_views_router.js'
 import sessionRouter from './routers/session_router.js'
 import { passportCall } from "./utils.js";
+import { MessageService } from "./repository/index.js"
 
 
 const run = (socketServer, app) => {
@@ -24,8 +24,8 @@ const run = (socketServer, app) => {
     socketServer.on("connection", socket => {
         console.log("New client connected")
         socket.on("message", async data => {
-        await messagesModel.create(data)
-        messages = await messagesModel.find().lean().exec()
+        await MessageService.create(data)
+        messages = await MessageService.get()
         socketServer.emit("logs", messages)
         })
     })

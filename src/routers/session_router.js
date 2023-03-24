@@ -1,16 +1,18 @@
 import { Router } from "express";
 import passport from "passport";
-import { jwtCookieName } from "../config/credentials.js";
+import config from "../config/config.js";
+import { UserService } from "../repository/index.js";
 import { authorization, passportCall } from "../utils.js";
 
 const router = Router()
-//perfil
-router.get('/current', passportCall('jwt'), authorization('user'), (req, res)=>{
-    console.log('get: ',req.user);
-    res.render('sessions/profile', {
-        user: req.user.user
-    })
+
+//Profile
+router.get('/current', passportCall('jwt'), authorization('user'), async (req, res)=>{
+    const id = req.user.user._id
+    const user = await UserService.getOneByID(id)
+    res.render('sessions/profile', {user: user})
 })
+
 //Vista para registrar usuarios
 router.get('/register', (req, res) => {
     res.render('sessions/register')
@@ -32,11 +34,11 @@ router.get('/login', (req, res) => {
 
 // API para login
 router.post('/login', passport.authenticate('login', { failureRedirect: '/session/faillogin' }), async (req, res) => {
-    
     if (!req.user) {
         return res.status(400).send({ status: "error", error: "Invalid credentiales" })
     }
-    res.cookie(jwtCookieName, req.user.token).redirect('/products')
+    res.cookie(config.jwtCookieName, req.user.token).redirect('/products')
+    
 })
 router.get('/faillogin', (req, res) => {
     res.send({error: "Fail Login"})
@@ -48,10 +50,10 @@ router.get('/profile', (req, res) => {
 
 // Cerrar Session
 router.get('/logout', (req, res) => {
-    res.clearCookie(jwtCookieName).redirect('/session/login');
+    res.clearCookie(config.jwtCookieName).redirect('/session/login');
 })
 
-// Iniciar sesión con Github
+//Para iniciar con GitHub
 router.get(
     '/github',
     passport.authenticate('github', {scope: ['user:email']}),
@@ -67,5 +69,7 @@ router.get(
         res.redirect('/products')
     }
 )
+
+
 
 export default router

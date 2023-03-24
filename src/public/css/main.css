@@ -1,4 +1,71 @@
 .userMain{
-    color: blueviolet;
+    color: rgb(0, 0, 0);
     font-weight: bold;
 }
+
+.estilos-listado {
+
+    border-radius: 15px;
+    padding: 20px;
+}
+.estilos-listado{
+    grid-area:estilos-listado;
+}
+.estilos-listado{
+    display: grid;
+}
+.estilos-listado {
+    grid-template-columns: auto auto auto;
+    grid-template-rows: auto auto auto;
+    column-gap: 15px;
+    row-gap: 15px;
+    justify-items: stretch;
+    align-items: stretch;
+    margin-top: 20PX;
+}
+.tarjeta-producto{
+    display:block;
+    text-align: center;
+    align-items: center;
+    background-color: rgb(253, 149, 102);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 2px 1px -1px rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 1px 3px 0 rgb(0 0 0 / 12%);
+}
+.navegacion{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color:#FD611A ;
+}
+
+.listado{
+    list-style: none;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px;
+    
+}
+.listado li {
+  margin: 30px;
+  text-decoration: none;
+   
+}
+.listado li a{
+    font-size: 20px;
+    text-decoration: none;
+    color: black;
+}
+
+.logoinicio{
+    width: 265px;
+    height: 75px;
+}
+.claseActive{
+    text-decoration: none;
+    
+}
+

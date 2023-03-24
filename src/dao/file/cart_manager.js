@@ -1,4 +1,4 @@
-import cartModel from '../models/cart_model.js'
+import fs from "fs"
 class CartManager{
     constructor(path){
         this.path=path
@@ -20,9 +20,9 @@ class CartManager{
         const data=await this.read()
         return data
     }
-    getCartById = async (id) => {
-        const cartById = await cartModel.findOne({_id:id}).lean().exec()
-        return cartById || "Cart Id not found";
+    getCartById = list => {
+        const count = list.length
+        return (count > 0) ? list[count - 1].id + 1 : 1
         
     }
     geById=async(eventID)=>{

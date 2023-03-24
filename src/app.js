@@ -5,12 +5,13 @@ import __dirname from './utils.js'
 import mongoose from 'mongoose'
 import run from './run.js'
 import session from 'express-session';
-import MongoStore from 'connect-mongo';
+//import MongoStore from 'connect-mongo';
 import initializePassport from "./config/passport.config.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 
-//Init servers
+
+// //Init servers
 const app=express()
 
 //Config engine templates
@@ -22,8 +23,7 @@ app.engine('handlebars',handlebars.engine())
 app.set('views',__dirname+'/views')
 app.set('view engine','handlebars')
 
-const MONGO_URI= "mongodb+srv://cristian:JzzEIaxzqiniLvcI@cluster0.bqge7dg.mongodb.net/?retryWrites=true&w=majority"
-const DB_NAME="ecommerce"
+
 // Configurar sessions
 app.use(session({
     secret: 'mysecret',
@@ -34,15 +34,7 @@ initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
 
-mongoose.connect(MONGO_URI, {
-    dbName: DB_NAME
-}, (error) => {
-    if(error){
-        console.log("DB No conectado...")
-        return
-    }
-    const httpServer = app.listen(8080, () => console.log("Empezando..."))
+const httpServer = app.listen(8080, () => console.log("Listening..."))
     const socketServer = new Server(httpServer)
     httpServer.on("error", () => console.log("ERROR"))
     run(socketServer, app)
-})

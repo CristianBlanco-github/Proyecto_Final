@@ -11,14 +11,22 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="{{style}}">
 </head>
-<body>
-    <div id="navBar" class="d-flex justify-content-around align-items-baseline text-center">
-        <h2>Bienvenido</h2>
-        <p id="userMain" class="userMain">{{user.email}}</p>
-        <form action="/session/logout" method="get">
-        <input class="btn btn-danger" type="submit" value="Logout">
-        </form>
-    </div>
+<body class="">
+    <nav id="navBar" class="navegacion">
+        <div>
+            <img src="" alt="" class="logoinicio">
+        </div>
+        <div class="listado ">
+            <li><a href="">Productos</a></li>
+            <li><a href="/api/chat"></a>Ayuda</li>
+            <li><a href=""></a>Esponsors</li>
+            
+            <form action="/session/logout" method="get">
+                <li id="userMain" class="userMain">{{user.email}}</li>
+                <input class="btn btn-danger" type="submit" value="Logout">
+            </form>
+        </div>
+    </nav>
     {{{body}}}
     {{!-- BOOTSTRAP --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>

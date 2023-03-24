@@ -1,25 +1,15 @@
-<h1 class="display-5 text-center">Productos</h1>
-<hr>
-<table id="productsTable" class="table table-dark table-striped table-hover">
-    <tr>
-        <td><strong>Producto</strong></td>
-        <td><strong>Descripción</strong></td>
-        <td><strong>Precio</strong></td>
-        <td><strong>Código</strong></td>
-        <td><strong>Stock</strong></td>
-        <td><strong>Categoría</strong></td>
-    </tr>
-    {{#each data.docs}}
-    <tr>
-        <td>{{this.title}}</td>
-        <td>{{this.description}}</td>
-        <td>{{this.price}}</td>
-        <td>{{this.code}}</td>
-        <td>{{this.stock}}</td>
-        <td>{{this.category}}</td>
-        <td><button id="addToCart" type="button" class="btn btn-success">Agregar</button></td>
-    </tr>
-    {{/each}}
-</table>
-<div id="moving"></div>
-<button id="boton">Apretar</button>
+<div class="estilos-listado">
+{{#each data.docs}}
+    <div class="tarjeta-producto">
+            <img className='imgar' src={item.pictureUrl} alt={item.title} />
+            <p><a href="/api/products/{{_id}}">{{title}}</a></p>
+            <p>Categoria:{{category}}</p>
+            <p>Precio:{{price}}$</p>
+            <p>Stock:{{stock}}</p>
+            <button class="boton-ver"><span>Al carro</span></button>
+        </div>
+{{/each}}
+</div>
+
+<script src="/js/product.js"></script>
+

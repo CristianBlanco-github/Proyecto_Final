@@ -50,6 +50,22 @@ class FileManager{
             }
         }
     }
+    create = async (obj) => {
+        const list = await this.read()
+        const nextID = this.getNextID(list)
+        const code = this.getCode(list)
+        obj.id = nextID
+        obj.code = code
+        list.push(obj)
+        await this.write(list)
+        return obj
+    }
+    getOneByParam = async(param, value) => {
+        const data = await this.read()
+        const obj = data.find(d => d[param] == value)
+    
+        return obj
+        }
     geById=async(eventID)=>{
         const products=await this.read()
         const event=products.find(product=>product.id==eventID)
