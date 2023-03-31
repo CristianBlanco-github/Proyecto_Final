@@ -5,7 +5,10 @@ import jwt from "jsonwebtoken"
 import passport from 'passport'
 import config from './config/config.js'
 import {faker} from "@faker-js/faker"
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
+export default __dirname
 
 export const createHash = password => {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
@@ -61,7 +64,3 @@ export const generateProducts = () => {
       thumbnails: [faker.image.image()]
     }
   }
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-export default __dirname
