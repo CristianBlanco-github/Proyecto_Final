@@ -4,10 +4,8 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import passport from 'passport'
 import config from './config/config.js'
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import {faker} from "@faker-js/faker"
 
-export default __dirname
 
 export const createHash = password => {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
@@ -47,3 +45,23 @@ export const authorization = (role) => {
         next();
     }
 }
+
+export const generateProducts = () => {
+    return {
+      id: faker.database.mongodbObjectId(),
+      title: faker.commerce.product(),
+      author: faker.name.fullName(),
+      description: faker.commerce.productDescription(),
+      lang: "es",
+      code: faker.random.alphaNumeric(10),
+      price: faker.commerce.price(),
+      status: faker.datatype.boolean(),
+      stock: faker.random.numeric(),
+      categories: [faker.commerce.productAdjective(), faker.commerce.productAdjective()],
+      thumbnails: [faker.image.image()]
+    }
+  }
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+export default __dirname

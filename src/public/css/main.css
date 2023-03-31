@@ -2,7 +2,11 @@
     color: rgb(0, 0, 0);
     font-weight: bold;
 }
-
+.dropdown-toggle{
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
 .estilos-listado {
 
     border-radius: 15px;
@@ -69,3 +73,7 @@
     
 }
 
+.formula{
+    display: flex;
+    align-items: center;
+}

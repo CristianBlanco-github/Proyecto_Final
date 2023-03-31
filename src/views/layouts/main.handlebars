@@ -16,14 +16,18 @@
         <div>
             <img src="" alt="" class="logoinicio">
         </div>
-        <div class="listado ">
+        <div class="listado">
             <li><a href="">Productos</a></li>
             <li><a href="/api/chat"></a>Ayuda</li>
             <li><a href=""></a>Esponsors</li>
-            
-            <form action="/session/logout" method="get">
-                <li id="userMain" class="userMain">{{user.email}}</li>
-                <input class="btn btn-danger" type="submit" value="Logout">
+            <form action="/session/logout" method="get" class="formula">
+                <div class="dropdown">
+                    <button id="userMain" class="userMain btn dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">{{user.first_name}} {{user.last_name}}</button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Mi cuenta</a></li>
+                        <li><input class="btn btn-danger dropdown-item" type="submit" value="Logout"></li>
+                    </ul>
+                </div>
             </form>
         </div>
     </nav>

@@ -1,5 +1,7 @@
 import {Router} from "express"
 import { ProductService } from "../repository/index.js"
+import { generateProducts } from "../utils.js";
+
 
 const router = Router()
 
@@ -29,6 +31,14 @@ router.get("/:id", async (req, res) => {
     res.render("productDetail", product)
 })
 
+router.get("/mockingproducts",async(req, res)=>{
+    const products=[]
+    for (let i = 0; i < 100; i++) {
+        products.push(generateProducts())
+    }
+    res.send({status:'success', payload: products})
+})
+
 //DELETE
 router.delete("/:pid", async (req, res) => {
     const id = req.params.pid
@@ -43,7 +53,7 @@ router.delete("/:pid", async (req, res) => {
 })
 
 //POST
-router.post("/", async (req, res) => {
+router.post("/", async (req, res,next) => {
     try {
         const product = req.body
         if (!product.title) {
@@ -58,24 +68,24 @@ router.post("/", async (req, res) => {
             productAdded
         })
     } catch (error) {
-        console.log(error)
-        res.json({
-            error
-        })
+        next(err);
     }
 })
 
 //PUT
-router.put("/:pid", async (req, res) => {
-    const id = req.params.pid
-    const productToUpdate = req.body
-
-    const product = await ProductService.update({_id: id}, productToUpdate)
-    req.io.emit('updatedProducts', await ProductService.get());
-    res.json({
+router.put("/:pid", async (req, res,next) => {
+    try{
+        const id = req.params.pid
+        const productToUpdate = req.body
+        const product = await ProductService.update({_id: id}, productToUpdate)
+        req.io.emit('updatedProducts', await ProductService.get());
+        res.json({
         status: "Success",
         product
-    })
+        })
+    }catch(err){
+    next(err)
+    }
 })
 
 

@@ -3,6 +3,9 @@ import TicketModel from "../dao/mongo/models/ticket.model.js"
 import { CartService, ProductService } from "../repository/index.js"
 import { authorization, passportCall } from "../utils.js"
 import { v4 as uuidv4 } from 'uuid';
+import CustomError from ".././errors/custom_errors.js"
+import EErros from ".././errors/enums.js"
+import { generateCartErrorInfoStock } from "../errors/info.js";
 
 const router = Router()
 
@@ -26,29 +29,36 @@ router.post("/", authorization('user'), async (req, res) => {
     res.json({status: "Success", newCart})
 })
 
-router.post("/:cid/product/:pid", authorization('user'), async (req, res) => {
+router.post("/:cid/product/:pid",async (req, res) => {
     const cartID = req.params.cid
     const productID = req.params.pid
     const quantity= req.body.quantity || 1
-    const cart = await CartService.getById(cartID)
-
-    let found = false
-    for (let i = 0; i < cart.products.length; i++) {
-        if (cart.products[i].id._id == productID) {
-            
-            cart.products[i].quantity++
-            found = true
-            break
+    try{
+        const cart = await CartService.getById(cartID)
+        const infoProd = await ProductService.getById(productID)
+        if(infoProd.stock < quantity){
+            await CustomError.createError({
+                name: "Add product error",
+                cause: generateCartErrorInfoStock(infoProd),
+                message: "Error dont have Stock",
+                code: EErros.INVALID_TYPES_ERROR
+            })
         }
+        let found = false
+        for (let i = 0; i < cart.products.length; i++) {
+            if (cart.products[i].id._id == productID) {
+                cart.products[i].quantity++
+                found = true
+                break
+            }
+        }
+        if (found == false) {
+            cart.products.push({ id: productID, quantity})
+        }
+            await cart.save()
+    } catch(error){
+        console.log(error)
     }
-    if (found == false) {
-        cart.products.push({ id: productID, quantity})
-    }
-
-    await cart.save()
-
-
-    res.redirect(`/api/carts/${cartID}`)
 })
 
 router.post("/:cid/purchase", passportCall('jwt'), authorization('user'), async (req, res) => {
