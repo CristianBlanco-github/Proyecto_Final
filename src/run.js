@@ -7,6 +7,7 @@ import { passportCall } from "./utils.js";
 import { MessageService } from "./repository/index.js"
 import errorHandler from './middlewares/errors.js'
 import mockingProducts from "./mocking/products.mocking.js"
+import loggerTest from "./routers/loggerTest.js"
 
 const run = (socketServer, app) => {
     app.use((req, res, next) => {
@@ -20,6 +21,7 @@ const run = (socketServer, app) => {
     app.use("/api/carts", cartRouter)
     app.use("/api/chat", chatRouter)
     app.use("/mockingproducts", mockingProducts)
+    app.use("/loggerTest", loggerTest)
 
     let messages = []
 

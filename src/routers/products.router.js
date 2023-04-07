@@ -53,7 +53,7 @@ router.delete("/:pid", async (req, res) => {
 })
 
 //POST
-router.post("/", async (req, res,next) => {
+router.post("/", async (req, res) => {
     try {
         const product = req.body
         if (!product.title) {
@@ -68,7 +68,10 @@ router.post("/", async (req, res,next) => {
             productAdded
         })
     } catch (error) {
-        next(err);
+        req.logger.error(error)
+        res.json({
+            error
+        })
     }
 })
 

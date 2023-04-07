@@ -7,6 +7,7 @@ import session from 'express-session';
 import initializePassport from "./config/passport.config.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
+import { addLogger } from "./middlewares/logger.js";
 
 
 
@@ -16,6 +17,7 @@ const app=express()
 //Config engine templates
 app.use(express.json())
 app.use(cookieParser())
+app.use(addLogger)
 app.use(express.urlencoded({extended: true}))// codifica en formato json
 app.use(express.static(__dirname+'/public'))
 app.engine('handlebars',handlebars.engine())
