@@ -1,8 +1,8 @@
 import CartDTO from '../dao/DTO/carts.dto.js'
-// import CustomError from "../errors/custom_errors.js";
-// import EErrors from "../errors/enums.js";
+import CustomError from "../errors/custom_errors.js";
+import EErrors from "../errors/enums.js";
 // import { generateNullError } from "../errors/info.js";
-// import { ProductService, ticketsService } from "./index.js";
+import { ProductService } from "./index.js";
 
 export default class CartRepository {
     constructor(dao) {
@@ -25,6 +25,38 @@ export default class CartRepository {
     getByIdLean = async (id) => {
         return await this.dao.getByIdLean(id)
     }
+    addProductById = async (cartId,productId,quantity, ownerId) => {
+        if(cartId.length < 24 || productId.length < 24){
+        CustomError.createError({
+            name: `ID must have 24 characters at least `,
+            cause: generateCartErrorInfo(cartId, productId),
+            message: 'Error trying to add product to cart',
+            code: EErrors.INVALID_TYPES_ERROR
+        })}
+        const cart = await this.getCartById(cartId) 
+        const product = cart.products?.find(product => product.product._id == productId)
+        const productContent = await ProductService.getProductById(productId) 
+        let newCart;
+        if (!product) {
+            if (productContent.owner  == ownerId) {
+                return {error:'No puedes agregar productos creados por ti mismo'}
+            }
+            cart.products?.push({product: productId, quantity: quantity})
+            newCart = await this.dao.update(cartId, productId, quantity, false);
+            return {newCart, cart}
+        }
+        else {
+            if (productContent.owner  == ownerId) {
+                return {error:'No puedes agregar productos creados por ti mismo'}
+            }
+            product.quantity += quantity
+            newCart = await this.dao.update(cartId, productId, product.quantity, true);
+            return {newCart, cart}
+        }
+        
+        
+    }
+    
     // addProductToCart = async (cart, product) => {
     //     if (!cart) CustomError.createError({
     //       name: "Find cart error",

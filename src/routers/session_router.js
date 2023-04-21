@@ -2,7 +2,7 @@ import { Router } from "express";
 import passport from "passport";
 import config from "../config/config.js";
 import { UserService } from "../repository/index.js";
-import { authorization, passportCall } from "../utils.js";
+import { authorization, passportCall,createHash,isValidPassword } from "../utils.js";
 
 const router = Router()
 
@@ -70,7 +70,39 @@ router.get(
         res.redirect('/products')
     }
 )
+router.get('/reminder', async (req, res) =>{
+    const { email } = req.body
+    const result = await UserService.reminder(email)
+    res.render('session-views/login',result)
+})
 
+router.get('/recoverPass/:token', async (req, res) =>{
+    const token = req.params.token
+    const result = await UserService.recoverPass(token)
+    if (result) res.render('session-views/recoverPass',{token})
+    else res.render('session-views/reminder')
+})
+
+router.get('/recoverPassAction/:token',async (req, res) =>{
+    const token = req.params.token
+    const {password} = req.body 
+    const result = await UserService.recoverPass(token)
+    if (!isValidPassword(result, password)) {
+        result.password = createHash(password)
+        console.log(result);
+        const newUserPassword = await UserService.update(result._id, result)
+        if (newUserPassword) res.render('session-views/login',{message:"Contraseña Cambiada"})
+    } else {
+        res.render('session-views/login',{error:"LA CONTRASEÑA DEBE SER DIFERENTE A LAS YA USADAS"})
+    }
+})
+
+router.get('/premium/:uid', passportCall('jwt',{session:false, failureRedirect:'/views/login'}), authorization(['ADMIN']), async (req, res) =>{
+    const uid = req.params.uid
+    const result = await UserService.goPremium(uid)
+    
+    res.send(result)
+})
 
 
 export default router

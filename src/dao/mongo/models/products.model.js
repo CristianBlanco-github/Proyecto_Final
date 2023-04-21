@@ -11,6 +11,10 @@ const productSchema = new mongoose.Schema({
     stock: Number,
     category: String,
     thumbnails: Array,
+    owner: {
+        type: String,
+        default: "admin"
+    }
 })
 
 mongoose.set("strictQuery", false)

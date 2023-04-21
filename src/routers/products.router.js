@@ -42,54 +42,36 @@ router.get("/mockingproducts",async(req, res)=>{
 //DELETE
 router.delete("/:pid", async (req, res) => {
     const id = req.params.pid
-    const productDeleted = await ProductService.delete(id)
-
-    req.io.emit('updatedProducts', await ProductService.get());
-    res.json({
-        status: "Success",
-        massage: "Product Deleted!",
-        productDeleted
-    })
+    const ownerID = req.user.user.role == "admin" ? "admin" : req.user.user._id
+    const deleteProduct =  await ProductService.deleteProductById(id, ownerID)
+    req.io.emit('updatedProducts', await ProductService.getProducts());
+    res.send(deleteProduct)
 })
 
 //POST
-router.post("/", async (req, res) => {
-    try {
-        const product = req.body
-        if (!product.title) {
-            return res.status(400).json({
-                message: "Error Falta el nombre del producto"
-            })
+router.post("/", async (req, res, next )=> {
+    try{
+        const {title, description, price, thumbnails, code, stock, category, status} = req.body
+        const ownerID = req.user.user.role == "admin" ? "admin" : req.user.user._id
+        const addProduct = await ProductService.addProduct(title, description, price, code, stock, category, status, thumbnails, ownerID)
+        req.io.emit('updatedProducts', await ProductService.getProducts());
+        res.send(addProduct)
+        }catch(err){
+          next(err);
         }
-        const productAdded = await ProductService.create(product)
-        req.io.emit('updatedProducts', await ProductService.get());
-        res.json({
-            status: "Success",
-            productAdded
-        })
-    } catch (error) {
-        req.logger.error(error)
-        res.json({
-            error
-        })
-    }
-})
+    })
 
 //PUT
 router.put("/:pid", async (req, res,next) => {
     try{
-        const id = req.params.pid
-        const productToUpdate = req.body
-        const product = await ProductService.update({_id: id}, productToUpdate)
-        req.io.emit('updatedProducts', await ProductService.get());
-        res.json({
-        status: "Success",
-        product
-        })
-    }catch(err){
-    next(err)
-    }
-})
-
+        const {title, description, price, thumbnails, code, stock, category, status} = req.body
+        const ownerID = req.user.user.role == "admin" ? "admin" : req.user.user._id
+        const addProduct = await ProductService.addProduct(title, description, price, code, stock, category, status, thumbnails, ownerID)
+        req.io.emit('updatedProducts', await ProductService.getProducts());
+        res.send(addProduct)
+        }catch(err){
+          next(err);
+        }
+    })
 
 export default router

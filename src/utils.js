@@ -20,12 +20,19 @@ export const isValidPassword = (user, password) => {
 //JWT
 
 export const generateToken = user => {
-    const token = jwt.sign({user}, config. jwtPrivateKey, {expiresIn: "24h"})
+    const token = jwt.sign({user}, config. jwtPrivateKey, {expiresIn: "1h"})
     return token
 }
 
 export const extractCookie = req => {
     return (req && req.cookies) ? req.cookies[config.jwtCookieName] : null
+}
+export const verifyUser = token => {
+    let user;
+    jwt.verify(token, config.jwtPrivateKey, (error, credentials)=>{
+        user = credentials?.user
+    })
+    return user
 }
 
 export const passportCall = (strategy) =>  {

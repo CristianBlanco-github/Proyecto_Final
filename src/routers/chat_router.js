@@ -3,7 +3,7 @@ import { authorization } from "../utils.js"
 
 const router = Router()
 
-router.get("/", authorization('user'), (req, res) => {
+router.get("/", authorization('user,PREMIUM'), (req, res) => {
     res.render("chat", {})
 })
 

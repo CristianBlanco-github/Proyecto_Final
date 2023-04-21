@@ -29,39 +29,25 @@ router.post("/", authorization('user'), async (req, res) => {
     res.json({status: "Success", newCart})
 })
 
-router.post("/:cid/product/:pid",async (req, res) => {
-    const cartID = req.params.cid
-    const productID = req.params.pid
-    const quantity= req.body.quantity || 1
-    try{
-        const cart = await CartService.getById(cartID)
-        const infoProd = await ProductService.getById(productID)
-        if(infoProd.stock < quantity){
-            await CustomError.createError({
-                name: "Add product error",
-                cause: generateCartErrorInfoStock(infoProd),
-                message: "Error dont have Stock",
-                code: EErros.INVALID_TYPES_ERROR
-            })
+router.post("/:cid/product/:pid",passportCall('jwt',{session:false, failureRedirect:'/views/login'}), authorization(['USER','ADMIN','PREMIUM']),async (req, res, next) => {
+    try {
+        const cartId = req.params.cid
+        const productId = req.params.pid
+        const ownerID = req.user.user.role == "admin" ? "admin" : req.user.user._id
+        const newCart = await CartService.addProductById(cartId,productId,1, ownerID)
+        if (newCart?.error) {
+            res.status(410).send({status: 'error', message: newCart.error})
+        }else{
+
+            res.send({status: 'success', parameters: newCart.newCart, cart: newCart.cart})
         }
-        let found = false
-        for (let i = 0; i < cart.products.length; i++) {
-            if (cart.products[i].id._id == productID) {
-                cart.products[i].quantity++
-                found = true
-                break
-            }
-        }
-        if (found == false) {
-            cart.products.push({ id: productID, quantity})
-        }
-            await cart.save()
-    } catch(error){
-        req.logger.error(error)
+    } catch (error) {
+        next(error)
+        /* res.status(401).send({status: 'error', message: error}) */
     }
 })
 
-router.post("/:cid/purchase", passportCall('jwt'), authorization('user'), async (req, res) => {
+router.post("/:cid/purchase", passportCall('jwt',{session:false, failureRedirect:'/views/login'}), authorization(['USER','ADMIN','PREMIUM']), async (req, res) => {
     const cartID = req.params.cid
     const cart = await CartService.getById(cartID)
     let totalPrice = 0
