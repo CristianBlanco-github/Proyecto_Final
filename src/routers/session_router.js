@@ -73,14 +73,14 @@ router.get(
 router.get('/reminder', async (req, res) =>{
     const { email } = req.body
     const result = await UserService.reminder(email)
-    res.render('session-views/login',result)
+    res.render('sessions/login',result)
 })
 
 router.get('/recoverPass/:token', async (req, res) =>{
     const token = req.params.token
     const result = await UserService.recoverPass(token)
-    if (result) res.render('session-views/recoverPass',{token})
-    else res.render('session-views/reminder')
+    if (result) res.render('sessions/recoverPass',{token})
+    else res.render('sessions/reminder')
 })
 
 router.get('/recoverPassAction/:token',async (req, res) =>{
@@ -91,9 +91,9 @@ router.get('/recoverPassAction/:token',async (req, res) =>{
         result.password = createHash(password)
         console.log(result);
         const newUserPassword = await UserService.update(result._id, result)
-        if (newUserPassword) res.render('session-views/login',{message:"Contraseña Cambiada"})
+        if (newUserPassword) res.render('sessions/login',{message:"Contraseña Cambiada"})
     } else {
-        res.render('session-views/login',{error:"LA CONTRASEÑA DEBE SER DIFERENTE A LAS YA USADAS"})
+        res.render('sessions/login',{error:"LA CONTRASEÑA DEBE SER DIFERENTE A LAS YA USADAS"})
     }
 })
 
