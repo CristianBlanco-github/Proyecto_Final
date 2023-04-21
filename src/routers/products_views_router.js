@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
         lean: true
     }
     
-    const data = await ProductService.getPaginate(search, options)
+    const data = await ProductService.getProducts(search, options)
 
     const user = req.user.user
     res.render('products', {data, user})

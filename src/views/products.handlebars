@@ -1,10 +1,10 @@
 <div class="estilos-listado">
-{{#each data.docs}}
+{{#each data}}
     <div class="tarjeta-producto">
             <img className='imgar' src="" alt="" />
             <p><a href="/api/products/{{_id}}">{{title}}</a></p>
-            <p>Categoria:{{category}}</p>
-            <p>Precio:{{price}}$</p>
+            <p>Categoria:{{id.category}}</p>
+            <p>Precio:{{product.price}}$</p>
             <p>Stock:{{stock}}</p>
             <button class="boton-ver"><span>Al carro</span></button>
         </div>
