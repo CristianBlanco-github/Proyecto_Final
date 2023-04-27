@@ -1,28 +1,35 @@
-import UserDTO from '../dao/DTO/users.dto.js'
-import { generateToken, verifyUser } from "../utils.js";
+import UserDTO from '../dao/DTO/users.dto.js';
+import { generateToken, verifyUser } from "../Jwt_utils.js";
 import Mail from "../modules/mails.js";
-export default class UserRepository {
-    constructor(dao) {
-        this.dao = dao
-        this.Mail=new Mail()
+class UserRepository{
+
+    constructor(dao){
+        this.dao = dao;
+        this.mail = new Mail();
     }
 
-    get = async() => {
-        return await this.dao.get()
+    get = async (username) => {
+        return await this.dao.get(username)
     }
 
-    getOneByID = async(id) => {
-        return await this.dao.getOneByID(id)
+    getOne = async (parameter) => {
+        return await this.dao.getOne(parameter); 
     }
 
-    getOneByEmail = async(email) => {
-        return await this.dao.getOneByEmail(email)
+    getbyId = async (id) => {
+        return await this.dao.getbyId(id); 
     }
 
-    create = async(data) => {
-        const dataToInsert = new UserDTO(data)
-        return await this.dao.create(dataToInsert)
+    getCurrent = async (user) => {
+        const userToShow = new UserDTO(user).current()
+        return userToShow; 
     }
+
+    create = async (userTemplate) => {
+        const userToInstert = new UserDTO(userTemplate);
+        return await this.dao.create(userToInstert)
+    }
+
     update= async (id,updatedUser) => {
         return await this.dao.update(id,updatedUser)
     }   
@@ -36,7 +43,7 @@ export default class UserRepository {
         }
         const token = generateToken(user)
         let html = `<h1> Recupere su contraseña: </h1>
-        <h2><a href="http://127.0.0.1:8080/session/recoverPass/${token}">Link de recuperación</a><h2>
+        <h2><a href="http://127.0.0.1:8080/sessions/recoverPass/${token}">Link de recuperación</a><h2>
         `
         
         //send email
@@ -58,4 +65,8 @@ export default class UserRepository {
         }
         return user
     }
+    
+
 }
+
+export default UserRepository

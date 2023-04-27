@@ -8,6 +8,8 @@ import initializePassport from "./config/passport.config.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import { addLogger } from "./middlewares/logger.js";
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 
 
@@ -23,6 +25,20 @@ app.use(express.static(__dirname+'/public'))
 app.engine('handlebars',handlebars.engine())
 app.set('views',__dirname+'/views')
 app.set('view engine','handlebars')
+// Configurar swagger
+const swaggerOptions = {
+    definition:{
+        openapi: '3.0.1',
+        info:{
+            title: "Documentacion de e-Commerce",
+            description: "Este proyecto e-Commerce pertenece al trabajado integrador final del curso Backend"
+        }
+    },
+    apis: [`${__dirname}/docs/**/*.yaml`]
+}
+
+const specs = swaggerJSDoc(swaggerOptions)
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 
 // Configurar sessions

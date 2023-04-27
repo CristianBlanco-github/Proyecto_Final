@@ -2,29 +2,41 @@ import CartDTO from '../dao/DTO/carts.dto.js'
 import CustomError from "../errors/custom_errors.js";
 import EErrors from "../errors/enums.js";
 // import { generateNullError } from "../errors/info.js";
-import { ProductService } from "./index.js";
+import { ProductService,UserService } from "./index.js";
+import {generateCartErrorInfo} from "../errors/info.js"
 
-export default class CartRepository {
-    constructor(dao) {
-        this.dao = dao
+class CartRepository{
+
+    constructor(dao){
+        this.dao = dao;
     }
 
-    get = async() => {
-        return await this.dao.get()
+    getCarts = async () => {
+       try {
+            let content=await this.dao.get();
+            return content
+       } catch (error) {
+            return 'Manager - Cannot reach carts'
+       }
+    }
+    
+    addCart = async () => {
+        try{
+            const cartToAdd = new CartDTO();
+            const newCart = await this.dao.create(cartToAdd)
+            return newCart
+        } catch(err){
+            return 'Manager - Cannot create cart'
+        }
+        
+    }
+    
+    getCartById = async (id) => {
+        const cartById = await this.dao.get(id)
+        return cartById || "Manager - Cart Id not found";
+        
     }
 
-    create = async(data) => {
-        const dataToInsert = new CartDTO(data)
-        return await this.dao.create(dataToInsert)
-    }
-
-    getById = async (id) => {
-        return await this.dao.getById(id)
-    }
-
-    getByIdLean = async (id) => {
-        return await this.dao.getByIdLean(id)
-    }
     addProductById = async (cartId,productId,quantity, ownerId) => {
         if(cartId.length < 24 || productId.length < 24){
         CustomError.createError({
@@ -53,54 +65,66 @@ export default class CartRepository {
             newCart = await this.dao.update(cartId, productId, product.quantity, true);
             return {newCart, cart}
         }
+
         
         
     }
-    
-    // addProductToCart = async (cart, product) => {
-    //     if (!cart) CustomError.createError({
-    //       name: "Find cart error",
-    //       cause: generateNullError("Cart"),
-    //       message: "Error trying to find cart",
-    //       code: EErrors.NULL_ERROR
-    //     })
-    //     if (!product) CustomError.createError({
-    //       name: "Find product error",
-    //       cause: generateNullError("Product"),
-    //       message: "Error trying to find product",
-    //       code: EErrors.NULL_ERROR
-    //     })
-    
-    //     const productIndex = cart.products.findIndex((p) => p.product?.equals(product._id));
-    //     if (productIndex === -1) {
-    //       cart.products.push({ product: product._id, quantity: 1 });
-    //       await this.updateCart(cart.id, cart)
-    //     } else {
-    //       cart.products[productIndex].quantity++;
-    //       await this.updateCart(cart.id, cart)
-    //     }
-    //     return new CartDTO(cart)
-    //   };
-    
-    //   purchase = async (cid, purchaser, ) => {
-    //     const cart = await this.getCart(cid)
-    //     if(cart.products.length === 0) throw new Error('El carrito está vacío')
-    
-    //     const cartProducts = await Promise.all(cart.products.map(async product => {
-    //       const newObj = await ProductService.getProduct(product.product || product._id)
-    //       newObj.quantity = product.quantity
-    //       return newObj
-    //     }))
+
+    async cleanedCart(cartId) {
+        await this.dao.clean(cartId);
+        return await this.getCartById(cartId);
+    }
+
+    async deleteProduct(cartId, prodId) {
+        await this.dao.delete(cartId,prodId);
+        return await this.getCartById(cartId);
+    }
+
+    async replaceCart(cartId, products){
+        await this.dao.replace(cartId, products);
+        return await this.getCartById(cartId);
+    }
+
+    async replaceProdQuantity(cartId, prodId, quantity){
+        await this.dao.update(cartId, prodId, quantity, true); 
+        return await this.getCartById(cartId);
+    }
+    async purchaseCart(cartId){
+        const cart = await this.getCartById(cartId);
         
-    //     const outOfStock = cartProducts.filter(p => p.stock < p.quantity).map(p => ({product: p._id, quantity: p.quantity}))
-    //     const available = cartProducts.filter(p => p.stock >= p.quantity)
-    //     const amount = available.reduce((acc, product) => acc + product.price, 0)
+        const outOfStock = []
+        const purchase = []
+        const ticket = {amount: 0}
+
+        for (const product of cart.products) {
+            if (product.product.stock >= product.quantity) {
+                const remaining = product.product.stock - product.quantity
+                await ProductService.updateProductById(product.product._id, {stock: remaining})
+                purchase.push({product:product.product._id, quantity:product.quantity})
+                ticket.amount += (product.product.price * product.quantity)
+            } else {
+                outOfStock.push(product.product._id)
+            }
+        }
+
+        cart.products = cart.products.filter(product => outOfStock.includes(product.product._id)) 
+
+        if (purchase.length > 0) {
+            ticket.code = `${Date.now()}${Math.floor(Math.random()*100000)}`
+            ticket.purchase_datetime = new Date()
+            const user = await UserService.getOne({cart: cart._id})
+            ticket.purchaser = user.email
+            ticket.products = purchase
+            await this.replaceCart(cart._id, cart.products)
+            return {status:'success', ticket: await TicketService.create(ticket), messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
+        }
         
-    //     const ticket = available.length > 0 ? (await ticketsService.createTicket({ amount, purchaser })).toObject() : null
-    //     available.forEach(async product => await ProductService.updateStock(product._id, product.quantity))
-    //     await this.updateCart(cid, {products: outOfStock})
-    
-    //     return { outOfStock, ticket }
-    //   }
-    
+        return {status:'error', error: 'No pudo realizarse ninguna compra por falta de Stock', messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
+    }
+
 }
+
+
+//module.exports = ProductManager;
+
+export default CartRepository;
