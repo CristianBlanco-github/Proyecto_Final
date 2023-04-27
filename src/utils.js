@@ -1,9 +1,7 @@
 import {fileURLToPath} from 'url'
 import { dirname } from 'path'
 import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
 import passport from 'passport'
-import config from './config/config.js'
 import {faker} from "@faker-js/faker"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -15,24 +13,6 @@ export const createHash = password => {
 }
 export const isValidPassword = (user, password) => {
     return bcrypt.compareSync(password, user.password)
-}
-
-//JWT
-
-export const generateToken = user => {
-    const token = jwt.sign({user}, config. jwtPrivateKey, {expiresIn: "1h"})
-    return token
-}
-
-export const extractCookie = req => {
-    return (req && req.cookies) ? req.cookies[config.jwtCookieName] : null
-}
-export const verifyUser = token => {
-    let user;
-    jwt.verify(token, config.jwtPrivateKey, (error, credentials)=>{
-        user = credentials?.user
-    })
-    return user
 }
 
 export const passportCall = (strategy) =>  {
