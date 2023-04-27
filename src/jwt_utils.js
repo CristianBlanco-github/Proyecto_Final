@@ -16,6 +16,9 @@ export const authToken = (req,res,next)=>{
     })
 
 }
+export const extractCookie = req => {
+    return (req && req.cookies) ? req.cookies[config.jwtCookieName] : null
+}
 
 export const verifyUser = token => {
     let user;
