@@ -1,5 +1,5 @@
 import UserDTO from '../dao/DTO/users.dto.js';
-import { generateToken, verifyUser } from "../Jwt_utils.js";
+import { generateToken, verifyUser } from "../utils.js";
 import Mail from "../modules/mails.js";
 class UserRepository{
 
@@ -15,9 +15,15 @@ class UserRepository{
     getOne = async (parameter) => {
         return await this.dao.getOne(parameter); 
     }
+    getOneByID = async(id) => {
+        return await this.dao.getOneByID(id)
+    }
 
     getbyId = async (id) => {
         return await this.dao.getbyId(id); 
+    }
+    getOneByEmail = async(email) => {
+        return await this.dao.getOneByEmail(email)
     }
 
     getCurrent = async (user) => {

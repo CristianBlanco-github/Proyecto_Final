@@ -70,7 +70,7 @@ export default class ProductRepository {
         const productToInsert = new ProductDTO(newProduct)
         const errors = await this.#errorCheck(productToInsert,"add", false)
         console.log(errors);
-        return errors.length == 0 ? (await this.dao.create(productToInsert),productToInsert) : {error: errors}
+        return errors.length == 0 ? (await this.dao.create(productToInsert)) : {error: errors}
         
     }
 

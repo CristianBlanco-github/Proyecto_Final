@@ -2,14 +2,14 @@ import { Router } from "express";
 import passport from "passport";
 import config from "../config/config.js";
 import { UserService } from "../repository/index.js";
-import { authorization, passportCall,createHash,isValidPassword } from "../utils.js";
+import { authorization,passportCall,createHash,isValidPassword } from "../utils.js";
 
 const router = Router()
 
 //Profile
 router.get('/current', passportCall('jwt'), authorization('user'), async (req, res)=>{
     const id = req.user.user._id
-    const user = await UserService.getCurrent(id)
+    const user = await UserService.getOneByID(id)
     res.render('sessions/profile', {user: user})
 })
 
@@ -70,7 +70,7 @@ router.get(
         res.redirect('/products')
     }
 )
-router.post('/reminder', async (req, res) =>{
+router.get('/reminder', async (req, res) =>{
     const { email } = req.body
     const result = await UserService.reminder(email)
     res.render('sessions/login',result)
@@ -83,7 +83,7 @@ router.get('/recoverPass/:token', async (req, res) =>{
     else res.render('sessions/reminder')
 })
 
-router.post('/recoverPassAction/:token',async (req, res) =>{
+router.get('/recoverPassAction/:token',async (req, res) =>{
     const token = req.params.token
     const {password} = req.body 
     const result = await UserService.recoverPass(token)

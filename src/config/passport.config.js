@@ -3,8 +3,7 @@ import local from "passport-local"
 import { UserService, CartService } from "../repository/index.js";
 import GitHubStrategy from "passport-github2"
 import jwt from 'passport-jwt'
-import{generateToken,extractCookie} from "../Jwt_utils.js"
-import { createHash, isValidPassword} from "../utils.js"
+import { createHash, isValidPassword,generateToken,extractCookie} from "../utils.js"
 import config from "./config.js";
 
 const LocalStrategy = local.Strategy
@@ -29,7 +28,7 @@ const initializePassport = () => {
                 email,
                 age,
                 password: createHash(password),
-                cart: await CartService.create({})
+                cart: await CartService.addCart({})
             }
             if(!first_name || !last_name || !email || !age){
                 req.logger.error("Faltan Datos")
@@ -63,7 +62,7 @@ const initializePassport = () => {
                 email: profile._json.email,
                 age: profile._json.age,
                 password: "",
-                cart: await CartService.create({}),
+                cart: await CartService.addCart({}),
                 role: "user",
                 
             }

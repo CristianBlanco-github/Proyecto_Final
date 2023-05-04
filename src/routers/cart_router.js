@@ -11,20 +11,20 @@ const router = Router()
 
 //GET
 router.get("/", async (req, res) => {
-    const carts = await CartService.get()
+    const carts = await CartService.getCarts()
     res.json({ carts })
 })
 
 router.get("/:id", async (req, res) => {
     const id = req.params.id
-    const cart = await CartService.getByIdLean(id)
+    const cart = await CartService.getCartById(id)
     const productsInCart = cart.products
     res.render("cart", {productsInCart})
 })
 
 //POST USER
 router.post("/", authorization('user'), async (req, res) => {
-    const newCart = await CartService.create({})
+    const newCart = await CartService.addCart({})
 
     res.json({status: "Success", newCart})
 })
@@ -49,7 +49,7 @@ router.post("/:cid/product/:pid",passportCall('jwt',{session:false, failureRedir
 
 router.post("/:cid/purchase", passportCall('jwt',{session:false, failureRedirect:'/views/login'}), authorization(['USER','ADMIN','PREMIUM']), async (req, res) => {
     const cartID = req.params.cid
-    const cart = await CartService.getById(cartID)
+    const cart = await CartService.getCartById(cartID)
     let totalPrice = 0
     const noStock = []
     const comparation = cart.products
@@ -83,7 +83,7 @@ router.delete("/:cid/product/:pid", authorization('admin'), async (req, res) => 
     const cartID = req.params.cid
     const productID = req.params.pid
 
-    const cart = await CartService.getById(cartID)
+    const cart = await CartService.getCartById(cartID)
     if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
 
     const productIDX = cart.products.findIndex(p => p.id._id == productID)
@@ -98,7 +98,7 @@ router.delete("/:cid/product/:pid", authorization('admin'), async (req, res) => 
 
 router.delete("/:cid", authorization('admin'), async (req, res) => {
     const cartID = req.params.cid
-    const cart = await CartService.getById(cartID)
+    const cart = await CartService.getCartById(cartID)
     if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
 
     cart.products = []
@@ -113,7 +113,7 @@ router.put("/:cid/product/:pid", authorization('admin'), async (req, res) => {
     const productID = req.params.pid
     const newQuantity = req.body.quantity
 
-    const cart = await CartService.getById(cartID)
+    const cart = await CartService.getCartById(cartID)
     if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
 
     const productIDX = cart.products.find(p => p.id._id == productID)
@@ -128,7 +128,7 @@ router.put("/:cid", authorization('admin'), async (req, res) => {
     const cartID = req.params.cid
     const cartUpdate = req.body
 
-    const cart = await CartService.getById(cartID)
+    const cart = await CartService.getCartById(cartID)
     if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
 
     cart.products = cartUpdate

@@ -116,7 +116,7 @@ class CartRepository{
             ticket.purchaser = user.email
             ticket.products = purchase
             await this.replaceCart(cart._id, cart.products)
-            return {status:'success', ticket: await TicketService.create(ticket), messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
+            return {status:'success', ticket: await TicketService.addCart(ticket), messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
         }
         
         return {status:'error', error: 'No pudo realizarse ninguna compra por falta de Stock', messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
