@@ -39,11 +39,21 @@ export default class User {
         }
         return await UserModel.create(data)
     }
-
+    update= async (id,updatedUser) => {
+        return await UserModel.updateOne({_id:id},{$set: updatedUser})
+    }
     getOneByID = async(id) => {
         return await UserModel.findById(id).lean().exec()
     }
-
+    getOne = async (parameter) => {
+        return await UserModel.findOne(parameter).lean().exec()
+    }
+    getbyId = async (id) => {
+        return await UserModel.findById(id).lean().exec()
+    }
+    delete = async (id) => {
+        return await UserModel.deleteOne({_id:id})        
+    }
     getOneByEmail = async(email) => {
         return await UserModel.findOne({ email }).lean().exec()
     }

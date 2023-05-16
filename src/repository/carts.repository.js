@@ -10,6 +10,20 @@ class CartRepository{
     constructor(dao){
         this.dao = dao;
     }
+    get = async() => {
+        return await this.dao.get()
+    }
+    create = async(data) => {
+        const dataToInsert = new CartDTO(data)
+        return await this.dao.create(dataToInsert)
+    }
+    getByIdLean = async (id) => {
+        return await this.dao.getByIdLean(id)
+    }
+    getById = async (id) => {
+        return await this.dao.getById(id)
+    
+    }
 
     getCarts = async () => {
        try {
@@ -19,6 +33,7 @@ class CartRepository{
             return 'Manager - Cannot reach carts'
        }
     }
+
     
     addCart = async () => {
         try{

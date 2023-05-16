@@ -33,7 +33,10 @@ const run = (socketServer, app) => {
         socketServer.emit("logs", messages)
         })
     })
-    app.use("/", (req, res) => res.send("HOME"))
+    app.get('/', (req, res) =>{
+        res.redirect('views/products')
+    })
+
     app.use(errorHandler)
 }
 

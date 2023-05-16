@@ -1,11 +1,11 @@
 <div class="estilos-listado">
-{{#each data}}
+{{#each products.payload}}
     <div class="tarjeta-producto">
             <img className='imgar' src="" alt="" />
-            <p><a href="/api/products/{{_id}}">{{title}}</a></p>
-            <p>Categoria:{{id.category}}</p>
-            <p>Precio:{{product.price}}$</p>
-            <p>Stock:{{stock}}</p>
+            <p><a href="/api/products/{{this_id}}">{{title}}</a></p>
+            <p>Categoria:{{this.category}}</p>
+            <p>Precio:{{this.price}}$</p>
+            <p>Stock:{{this.stock}}</p>
             <button class="boton-ver"><span>Al carro</span></button>
         </div>
 {{/each}}

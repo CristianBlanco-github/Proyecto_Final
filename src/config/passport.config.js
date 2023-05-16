@@ -3,44 +3,52 @@ import local from "passport-local"
 import { UserService, CartService } from "../repository/index.js";
 import GitHubStrategy from "passport-github2"
 import jwt from 'passport-jwt'
-import { createHash, isValidPassword,generateToken,extractCookie} from "../utils.js"
+import { createHash, isValidPassword,generateToken,extractCookie } from "../utils.js"
 import config from "./config.js";
 
 const LocalStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
 const ExtractJWT = jwt.ExtractJwt
+const cookieExtractor = req => {
+    const token = req?.cookies['auth'] || req?.headers?.auth || null;
+    req.logger.info('Cookie Extractor '+ token);
+    return token;
+}
 const initializePassport = () => {
+    passport.use('current',  new JWTStrategy({
+        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
+        secretOrKey: config.jwtPrivateKey // DEBE SER LA MISMA que como la del JWT UTILS 
+    },async (jwt_payload, done)=>{
+        try {
+            return done(null, jwt_payload)
+        } catch (error) {
+            return done(error)
+        }
+        
+    }))
 
     passport.use('register', new LocalStrategy({
         passReqToCallback: true,
         usernameField: 'email'
     }, async (req, username, password, done) => {
         const {first_name, last_name, email, age } = req.body
-        try {
             const user = await UserService.getOneByEmail(username)
             if(user) {
                 req.logger.info("User already exits");
                 return done(null, false)
             }
-            const newUser = {
+            const userTemplate = {
                 first_name,
                 last_name,
                 email,
                 age,
                 password: createHash(password),
-                cart: await CartService.addCart({})
+                cart: await fetch('http://127.0.0.1:8080/api/carts', {method:'POST'}).then(res=>res.json()).then(data=> data._id),
+                documents: [],
+                last_connection: new Date()
             }
-            if(!first_name || !last_name || !email || !age){
-                req.logger.error("Faltan Datos")
-            }else{
-                const result = await UserService.create(newUser)
-                return done(null, result)
-            }
-        } catch (error) {
-            return done("[LOCAL] Error al obtener user " + error)
-        }
-
-
+            const newUser = await UserService.create(userTemplate)
+            return done(null, newUser)
     }))
     
     //Inicio con gitHub
@@ -62,14 +70,17 @@ const initializePassport = () => {
                 email: profile._json.email,
                 age: profile._json.age,
                 password: "",
-                cart: await CartService.addCart({}),
-                role: "user",
-                
+                cart: await fetch('http://127.0.0.1:8080/api/carts', {method:'POST'}).then(res=>res.json()).then(data=> data._id),
+                documents: [],
+                last_connection: new Date()
             }
-            
+            const newUser = await UserService.create(userTemplate)
+            const token = generateToken(newUser)
+            newUser.token = token
             return done(null, newUser)
         } catch (error) {
-            return done('Error to login with github' + error)
+            return done('Error to login with GitHub: ',error)
+            
         }
     }))
 
@@ -97,9 +108,11 @@ const initializePassport = () => {
             if(!isValidPassword(user, password)) return done(null, false)
             const token = generateToken(user)
             user.token = token
+            user.last_connection = new Date()
+            await UserService.update(user._id, {last_connection: user.last_connection})
             return done(null, user)
         } catch (error) {
-            console.log("error")
+            console.log("error poder")
         }
     }))
 

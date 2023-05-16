@@ -3,14 +3,16 @@ import passport from "passport";
 import config from "../config/config.js";
 import { UserService } from "../repository/index.js";
 import { authorization,passportCall,createHash,isValidPassword } from "../utils.js";
+import { uploaddocuments } from '../controllers/session.controller.js';
+import { uploader } from '../multer_utils.js';
 
 const router = Router()
 
 //Profile
 router.get('/current', passportCall('jwt'), authorization('user'), async (req, res)=>{
-    const id = req.user.user._id
-    const user = await UserService.getOneByID(id)
-    res.render('sessions/profile', {user: user})
+    const userInfo = await UserService.getCurrent(req.user.user)
+    delete userInfo.documents;
+    res.send(userInfo)
 })
 
 //Vista para registrar usuarios
@@ -37,7 +39,7 @@ router.post('/login', passport.authenticate('login', { failureRedirect: '/sessio
     if (!req.user) {
         return res.status(400).send({ status: "error", error: "Invalid credentiales" })
     }
-    res.cookie(config.jwtCookieName, req.user.token).redirect('/products')
+    res.cookie(config.jwtCookieName, req.user.token).redirect('/views/products')
     
 })
 router.get('/faillogin', (req, res) => {
@@ -50,7 +52,8 @@ router.get('/profile', (req, res) => {
 })
 
 // Cerrar Session
-router.get('/logout', (req, res) => {
+router.get('/logout',async (req, res) => {
+    await UserService.update(req.user.user._id, {last_connection: new Date()})
     res.clearCookie(config.jwtCookieName).redirect('/session/login');
 })
 
@@ -97,12 +100,15 @@ router.get('/recoverPassAction/:token',async (req, res) =>{
     }
 })
 
-router.get('/premium/:uid', passportCall('jwt',{session:false, failureRedirect:'/views/login'}), authorization(['ADMIN']), async (req, res) =>{
+router.post('/premium/:uid', passportCall('jwt',{session:false, failureRedirect:'/views/login'}), authorization(['ADMIN']), async (req, res) =>{
     const uid = req.params.uid
     const result = await UserService.goPremium(uid)
-    
-    res.send(result)
+    if (result == 'Missing Documents'){
+        return res.send({error: "Faltan Documentos"})    
+    }
+    return res.send(result)
 })
 
+router.post('/:uid/documents', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN','USER','PREMIUM']),uploader.any(), uploaddocuments)
 
 export default router

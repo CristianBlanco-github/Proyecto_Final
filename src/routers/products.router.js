@@ -6,28 +6,31 @@ import { generateProducts } from "../utils.js";
 const router = Router()
 
 //GET
-router.get("/", async (req, res) => {
-    const products = await ProductService.get()
-    const limit = req.query.limit
-    if (limit) {
-        res.json(products.slice(0, parseInt(limit)))
-    } else {
-        res.render("home", {
-            products
-        })
-    }
+router.get("/products", async (req, res) => {
+    let {limit, page, query, sort} = req.query
+    const products = await ProductService.getProducts(limit, page, sort, query)
+    req.io.emit('updatedProducts', products.payload);
+    res.send(products)
 })
 
 router.get("/realtimeproducts", async (req, res) => {
-    const products = await ProductService.get()
-    res.render('realTimeProducts', {
-        data: products
+    const products = await ProductService.getProducts()
+    res.render('realTimeProducts', 
+    {
+        title: "Lista de Productos",
+        products: products.payload,
+        user: req.user?.user
     })
+    
+    setTimeout(()=>{
+        req.io.emit('track','')
+        console.log(req.io.allSockets()); 
+    },1000)
 })
 
 router.get("/:id", async (req, res) => {
     const id = req.params.id
-    const product = await ProductService.getById(id)
+    const product = await ProductService.getProductById(id)
     res.render("productDetail", product)
 })
 

@@ -135,7 +135,7 @@ export default class ProductRepository {
                     name: `Code "${newProduct.code}" already exists`,
                     cause: generatePropertyError(newProduct),
                     message: 'Error trying to create product',
-                    code: EnumErrors.DATABASES_ERROR
+                    code: EnumErrors.DATABASE_ERROR
                 })
             }
         }
@@ -147,7 +147,7 @@ export default class ProductRepository {
                     name: `Code "${newProduct.code}" already exists`,
                     cause: generatePropertyError(newProduct),
                     message: 'Error trying to create product',
-                    code: EnumErrors.DATABASES_ERROR
+                    code: EnumErrors.DATABASE_ERROR
                 })
             }
         }

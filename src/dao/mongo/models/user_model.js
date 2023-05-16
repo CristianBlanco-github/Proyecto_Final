@@ -9,19 +9,27 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
-    age: Number,
-    password: String,
     role: {
         type: String,
         enum: ['user', 'admin','premium'],
-        default: 'premium'
+        default: 'user'
     },
+    age: Number,
+    password: String,
     cart: {
-        _id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "carts"
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'carts'
     },
+    documents: {
+        type:[
+            {
+                name: String,
+                reference: String
+            }
+            ],
+        default: []
+    },
+    last_connection: Date
 })
 mongoose.set("strictQuery", false)
 const UserModel = mongoose.model(userCollection, userSchema)
