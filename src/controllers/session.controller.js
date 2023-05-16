@@ -1,5 +1,4 @@
 import {Router} from 'express'
-import { createHash, isValidPassword } from '../utils';
 import { UserService } from "../repository/index.js";
 
 const router = Router()
