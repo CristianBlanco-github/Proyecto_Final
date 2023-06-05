@@ -44,8 +44,8 @@ if (purchaseButton) {
                 <p>Status: <strong>${data.status}</strong></p>
                 <p>TxID: <strong>${data.ticket.code}</strong></p>
                 <p>Fecha y hora: <strong>${data.ticket.purchase_datetime}</strong></p>
-                <p>Monto Total: <strong>$ ${data.ticket.amount}.-</strong></p>
-                <p>Comprador: <strong>${data.ticket.purchaser}.-</strong></p>
+                <p>Monto Total: <strong>$ ${data.ticket.amount}.</strong></p>
+                <p>Comprador: <strong>${data.ticket.purchaser}.</strong></p>
                 <p>Productos: </p>
             </div>
             `

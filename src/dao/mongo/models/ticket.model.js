@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
-const ticketCollection = "tickets"
+const ticketsCollection = 'tickets';
 
-const ticketSchema = new mongoose.Schema({
-    code: { //auto
+const ticketsSchema = new mongoose.Schema({
+    code: { //auogenerado
         type: Number,
         unique: true
-        },
-    purchaser: String,//Correo del comprador
-    purchase_datetime: Date, //compra creado
-    amount: Number,//T.Compra
-    roducts: {
+         }, 
+    purchase_datetime: Date, //compra created at
+    amount: Number, // total de compra
+    purchaser: String, // correo del comprador
+    products: {
         type:[
             {
                 product:{
@@ -20,8 +20,8 @@ const ticketSchema = new mongoose.Schema({
                 quantity: Number
             }
             ]}
-})
+});
 
-const TicketModel = mongoose.model(ticketCollection, ticketSchema)
+const ticketsModel = mongoose.model(ticketsCollection, ticketsSchema);
 
-export default TicketModel
+export default ticketsModel;
