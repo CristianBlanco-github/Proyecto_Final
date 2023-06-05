@@ -2,7 +2,7 @@ import CartDTO from '../dao/DTO/carts.dto.js'
 import CustomError from "../errors/custom_errors.js";
 import EErrors from "../errors/enums.js";
 // import { generateNullError } from "../errors/info.js";
-import { ProductService,UserService } from "./index.js";
+import { ProductService,UserService,TicketService } from "./index.js";
 import {generateCartErrorInfo} from "../errors/info.js"
 
 class CartRepository{
@@ -10,31 +10,14 @@ class CartRepository{
     constructor(dao){
         this.dao = dao;
     }
-    get = async() => {
-        return await this.dao.get()
-    }
-    create = async(data) => {
-        const dataToInsert = new CartDTO(data)
-        return await this.dao.create(dataToInsert)
-    }
-    getByIdLean = async (id) => {
-        return await this.dao.getByIdLean(id)
-    }
-    getById = async (id) => {
-        return await this.dao.getById(id)
-    
-    }
-
     getCarts = async () => {
-       try {
+        try {
             let content=await this.dao.get();
             return content
-       } catch (error) {
+        } catch (error) {
             return 'Manager - Cannot reach carts'
-       }
+        }
     }
-
-    
     addCart = async () => {
         try{
             const cartToAdd = new CartDTO();
@@ -45,7 +28,6 @@ class CartRepository{
         }
         
     }
-    
     getCartById = async (id) => {
         const cartById = await this.dao.get(id)
         return cartById || "Manager - Cart Id not found";
@@ -80,9 +62,6 @@ class CartRepository{
             newCart = await this.dao.update(cartId, productId, product.quantity, true);
             return {newCart, cart}
         }
-
-        
-        
     }
 
     async cleanedCart(cartId) {
@@ -106,7 +85,6 @@ class CartRepository{
     }
     async purchaseCart(cartId){
         const cart = await this.getCartById(cartId);
-        
         const outOfStock = []
         const purchase = []
         const ticket = {amount: 0}
@@ -131,9 +109,8 @@ class CartRepository{
             ticket.purchaser = user.email
             ticket.products = purchase
             await this.replaceCart(cart._id, cart.products)
-            return {status:'success', ticket: await TicketService.addCart(ticket), messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
+            return {status:'success', ticket: await TicketService.create(ticket), messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
         }
-        
         return {status:'error', error: 'No pudo realizarse ninguna compra por falta de Stock', messages: cart.products.length > 0 ?  {alert: 'Han quedado productos sin stock en el carrito', outOfStock} : null}
     }
 

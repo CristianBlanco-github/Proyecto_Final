@@ -7,17 +7,23 @@ const productSchema = new mongoose.Schema({
     title: String,
     description: String,
     price: Number,
-    status: Boolean,
+    code: Number,
+    status: {
+        type: Boolean,
+        default: true
+    },
     stock: Number,
     category: String,
-    thumbnails: Array,
+    thumbnails: {
+        type: Array, 
+        default:[]
+    },
     owner: {
         type: String,
-        default: "user"
+        default: "admin"
     }
 })
 
-mongoose.set("strictQuery", false)
 productSchema.plugin(mongoosePaginate)
 const ProductModel = mongoose.model(productCollection, productSchema)
 

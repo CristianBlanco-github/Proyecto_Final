@@ -1,11 +1,17 @@
-export const generateUserErrorInfoFirstName = () => {
-    return `El campo "First Name" se encuentra vacio o es invalido`
+export const generateProductErrorInfo = product =>{
+    return `
+    Uno o mas properties estan incompletos o son invalidos.
+    Lista de properties obligatorios:
+    -title: Must be a String(${product.title})
+    -description: Must be a String(${product.description})
+    -price: Must be numeric(${product.price})
+    -thumbnails: Must be an array of String(${product.thumbnails})
+    -code: Must be numeric(${product.code})
+    -stock: Must be Number(${product.stock})
+    -category: Must be a String(${product.category})
+    -status: Must be a Boolean(${product.status})     
+    `
 }
-
-export const generateUserErrorInfoLastName = () => {
-    return `El campo "Last Name" se encuentra vacio o es invalido`
-}
-
 export const generateUserErrorInfoAge = () => {
     return `El campo "Age" se encuentra vacio o es invalido`
 }
@@ -24,14 +30,12 @@ export const generateCartErrorInfo = cart =>{
     -products: Must be an Array of Products ID(${cart.products})  
     `
 }
-export const generatePropertyError = ({ title, description, code, price, stock }) => {
-    return `One or more properties were incomplete or not valid.
-    List of required properties:
-    * title     : needs to be a String, received ${title}
-    * description    : needs to be a String, received ${description}
-    * code      : needs to be a String, received ${code}
-    * price     : needs to be a Number, received ${price}
-    * stock     : needs to be a Number, received ${stock}`
+export const generateCodeErrorInfo = product =>{
+    return `
+    Uno o mas properties estan incompletos o son invalidos.
+    No se puede crear otro product con igual code number:
+    -code: Already exists code number:(${product.code}) 
+    `
 }
 export const generateNullError = (cartOrProduct) => {
     return `${cartOrProduct} does not exist.`

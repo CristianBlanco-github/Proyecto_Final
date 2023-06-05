@@ -19,30 +19,26 @@ describe('Registro, Login and Current', ()=>{
         age: faker.random.numeric(2)
     }
     it('Debe registrar un usuario', async ()=>{
-        const {status} = await requester.post('/session/register').send(mockUser)
+        const {status} = await requester.post('/api/users/registe').send(mockUser)
         expect(status).to.be.eql(302)
 
     })
     it('Debe loguear un usuario y devolver una cookie', async ()=>{
-        const result = await requester.post('/session/login').send({
+        const result = await requester.post('/api/users/login').send({
             email: mockUser.email,
             password: mockUser.password
         })
-        // COOKIE_NAME= COOKIE_VALUE
         const cookieResult = result.headers['set-cookie'][0]
-
         expect(cookieResult).to.be.ok
-
         cookie = {
             name: cookieResult.split('=')[0],
             value: cookieResult.split('=')[1]
         }
         expect(cookie.name).to.be.ok.and.eql('auth')
         expect(cookie.value).to.be.ok
-
     })
    it('Enviar cookie para ver el contenido del user', async() =>{
-        const {_body} = await requester.get('/session/current').set('Cookie', [`${cookie.name}=${cookie.value}`])
+        const {_body} = await requester.get('/api/users/current').set('Cookie', [`${cookie.name}=${cookie.value}`])
         expect(_body.email).to.be.eql(mockUser.email)
     })
 })

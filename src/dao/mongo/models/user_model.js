@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin','premium'],
         default: 'user'
     },
     age: Number,
@@ -31,7 +30,6 @@ const userSchema = new mongoose.Schema({
     },
     last_connection: Date
 })
-mongoose.set("strictQuery", false)
 const UserModel = mongoose.model(userCollection, userSchema)
 
 export default UserModel

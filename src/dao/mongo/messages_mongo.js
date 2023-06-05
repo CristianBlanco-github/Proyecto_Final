@@ -1,12 +1,16 @@
-import MessageModel from "./models/messages_model.js"
+import messagesModel from './models/messages_model.js'
 
-export default class Message {
-    constructor() {}
-    get = async() => {
-        return await MessageModel.find().lean().exec()
+class MessageMongo{
+
+    
+    get = async () => {
+        return await messagesModel.find(/* {$or:[{user:data }, {user:'At. al Cliente'}]} */).lean().exec()
+    } 
+
+    create = async (data)=>{
+        return await messagesModel.create(data)      
     }
 
-    create = async(data) => {
-        return await MessageModel.create(data)
-    }
 }
+
+export default MessageMongo;

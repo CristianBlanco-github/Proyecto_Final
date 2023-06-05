@@ -1,15 +1,26 @@
-<div class="card text-center position-absolute top-50 start-50 translate-middle" style="width: 24rem; height: 20rem;">
-  {{!-- <img src="..." class="card-img-top" alt="..."> --}}
-  <div class="card-body">
-    <h5 class="card-title">{{title}}</h5>
-    <strong>Stock</strong> {{stock}} <br>
-    <strong>Precio </strong>${{price}} <br>
-    <strong>Categoría</strong> {{category}} <br>
-    <strong>Description: </strong>
-    <p class="card-text">{{description}}</p>
-  </div>
-    <form class="card text-center" action="/api/carts/63dc3a34053dd3ab71540deb/product/{{_id}}" method="post">
-      <button id="addToCart" type="submit" class="btn btn-success">Agregar</button>
-    </form>
-    <a class="btn btn-danger" href="#" onClick="history.go(-1)">Volver</a>
-</div>
+        <h1 class="display-5 text-center">{{product.title}}</h1>
+        <h3 class="text-center">{{product.description}}</h3>
+        <br>
+        <a class="btn btn-danger" href="#" onClick="history.go(-1)">Volver</a>
+        <br>
+        <br>
+
+        <div class="cont-gral">   
+            
+                <div class="cont-img">
+                    <img src="{{product.thumbnails.[0]}}" alt="img_product" width="500"> <br>
+                </div>
+                <div class="cont-data"> 
+                    <strong>Precio </strong>${{product.price}}.- <br>
+                    <strong>Código</strong> {{product.code}} <br>
+                    <strong>Stock</strong> {{product.stock}} <br>
+                    <strong>Categoría</strong> {{product.category}} <br>
+                    <br>
+                    <button class="btn btn-success" type="button" name="addToCart" id="{{product._id}}">Agregar al carrito</button>
+                </div>
+                
+                
+
+        </div>
+
+        <script src="/js/product_buttons.js"></script>

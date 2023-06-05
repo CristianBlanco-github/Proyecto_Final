@@ -1,14 +1,15 @@
 import passport from "passport";
 import local from "passport-local"
-import { UserService, CartService } from "../repository/index.js";
+import { UserService} from "../repository/index.js";
 import GitHubStrategy from "passport-github2"
 import jwt from 'passport-jwt'
-import { createHash, isValidPassword,generateToken,extractCookie } from "../utils.js"
+import fetch from "node-fetch"
+import { createHash, isValidPassword,generateToken} from "../utils.js"
 import config from "./config.js";
 
-const LocalStrategy = local.Strategy
 const JWTStrategy = jwt.Strategy
 const ExtractJWT = jwt.ExtractJwt
+const LocalStrategy = local.Strategy
 const cookieExtractor = req => {
     const token = req?.cookies['auth'] || req?.headers?.auth || null;
     req.logger.info('Cookie Extractor '+ token);
@@ -17,7 +18,7 @@ const cookieExtractor = req => {
 const initializePassport = () => {
     passport.use('current',  new JWTStrategy({
         jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-        secretOrKey: config.jwtPrivateKey // DEBE SER LA MISMA que como la del JWT UTILS 
+        secretOrKey: config.jwtPrivateKey // DEBE SER LA MISMA A LAS JWT UTILS
     },async (jwt_payload, done)=>{
         try {
             return done(null, jwt_payload)
@@ -32,16 +33,16 @@ const initializePassport = () => {
         usernameField: 'email'
     }, async (req, username, password, done) => {
         const {first_name, last_name, email, age } = req.body
-            const user = await UserService.getOneByEmail(username)
+            const user = await UserService.get(username)
             if(user) {
                 req.logger.info("User already exits");
                 return done(null, false)
             }
             const userTemplate = {
-                first_name,
-                last_name,
-                email,
-                age,
+                first_name:first_name,
+                last_name:last_name,
+                email:email,
+                age:age,
                 password: createHash(password),
                 cart: await fetch('http://127.0.0.1:8080/api/carts', {method:'POST'}).then(res=>res.json()).then(data=> data._id),
                 documents: [],
@@ -55,21 +56,23 @@ const initializePassport = () => {
     passport.use('github', new GitHubStrategy({
         clientID: "Iv1.6efbd44c6d669031",
         clientSecret: "934d4dbd6174715b7c5c9a7eceef822111ca4ec0",
-        callbackURL: "http://127.0.0.1:8080/session/githubcallback"
-    }, async(accessToken, refreshToken, profile, done) => {
+        callbackURL: "http://127.0.0.1:8080/api/users/githubcallback"
+    }, async(profile, done) => {
         try {
-            const user = await UserService.get({email: profile._json.email})
+            const user = await UserService.get(profile.emails[0].value)
             if (user) {
                 const token = generateToken(user)
                 user.token = token
+                user.last_connection = new Date()
+                await UserService.update(user._id, {last_connection: user.last_connection})
                 return done(null, user);
             }
             const userTemplate ={
                 first_name: profile._json.name,
-                last_name: "",
-                email: profile._json.email,
-                age: profile._json.age,
-                password: "",
+                last_name: '',
+                email: profile.emails[0].value,
+                age: '',
+                password: '',
                 cart: await fetch('http://127.0.0.1:8080/api/carts', {method:'POST'}).then(res=>res.json()).then(data=> data._id),
                 documents: [],
                 last_connection: new Date()
@@ -100,28 +103,23 @@ const initializePassport = () => {
                 }
                 return done(null, admin)
             }
-            const user = await UserService.getOneByEmail(username)
+            const user = await UserService.get(username)
             if(!user) {
-                console.log("User dont exist");
+                console.log("NO USER: No hay usuario registrado con ese email");
                 return done(null, false)
             }
-            if(!isValidPassword(user, password)) return done(null, false)
+            if(!isValidPassword(user, password)){
+                console.log('INCORRECT PASSWORD: Contraseña incorrecta'); 
+                return done(null, false)
+            }
             const token = generateToken(user)
             user.token = token
             user.last_connection = new Date()
             await UserService.update(user._id, {last_connection: user.last_connection})
             return done(null, user)
         } catch (error) {
-            console.log("error poder")
+            console.log("error login")
         }
-    }))
-
-    //JWT
-    passport.use('jwt', new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromExtractors([extractCookie]),
-        secretOrKey:config.jwtPrivateKey
-    }, async(jwt_payload, done) => {
-        done(null, jwt_payload)
     }))
 
     passport.serializeUser((user, done) => {

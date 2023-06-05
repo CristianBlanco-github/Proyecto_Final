@@ -1,72 +1,66 @@
-import fs from "fs"
+import fs from 'fs';
+
 class CartManager{
-    constructor(path){
-        this.path=path
+    constructor(){
+        this.carts=new Array();
+        this.path="cart.json";
+        this.format = 'utf-8';
     }
-    read=()=>{
-        if(fs.existsSync(this.path)){
-            return fs.promises.readFile(this.path,'utf-8').then(r=>JSON.parse(r))
+
+    get = async (id = '') => {
+        try{
+            let content=await fs.promises.readFile(this.path,this.format)
+            this.carts = JSON.parse(content)
+            if (!id) return this.carts
+            return await this.carts.find(cart => cart.id == id) || "Cart Id not found";
         }
-        return[]
-    }
-    getNextID=list=>{
-        const count=list.length
-        return (count>0)?list[count-1].id+1:1
-    }
-    write=list=>{
-        return fs.promises.writeFile(this.path,JSON.stringify(list))
-    }
-    get=async()=>{
-        const data=await this.read()
-        return data
-    }
-    getCartById = list => {
-        const count = list.length
-        return (count > 0) ? list[count - 1].id + 1 : 1
+        catch(err){
+            return "Can't reach carts"
+        }
         
     }
-    geById=async(eventID)=>{
-        const list=await this.read()
-        const event=list.find(product=>product.id==eventID)
-        return event ?? -1;
-    }
-    create=async()=>{
-        const cartsList=await this.read()
-        const nextID=this.getNextID(cartsList)
+
+    create= async () => {
+        await this.get()
         const newCart={
-            id:nextID,
-            products:[]
+            id: this.getNextId(),
+            products: new Array()
         }
-        cartsList.push(newCart)
-        await this.write(cartsList)
-        return newCart
+        return (this.carts.push(newCart), await fs.promises.writeFile(this.path, JSON.stringify(this.carts)), newCart)
     }
-    update=async(id,obj)=>{
-        obj.id=id
-        const list=await this.read()
-        for (let i = 0; i < list.length; i++) {
-            if(list[i].id==id){
-                list[i]=obj
-                await this.write(list)
-                break
-            }
-        }
+    
+    update = async (cartId,productId,quantity, exists) => {
+        const cart = await this.get(cartId) 
+        if (exists == false) cart.products?.push({product: productId, quantity: quantity})
+        else product.quantity += quantity
+        return (await fs.promises.writeFile(this.path, JSON.stringify(this.carts)),cart)
     }
-    addProduct=async(cartID,productID)=>{
-        const cart=await this.geById(cartID)
-        let found=false
-        for (let i = 0; i < cart.products.length; i++) {
-            if(cart.products[i].id==productID){
-                cart.products[i].quantity++
-                found=true
-                break
-            }
-        }
-        if(!found){
-            cart.products.push({id:productID,quantity:1})
-        } 
-        await this.update(cartID, cart)
-        return cart
+
+    clean = async (cartId) => {
+        const cart = await this.get(cartId) 
+        cart.products = []
+        return await (await fs.promises.writeFile(this.path, JSON.stringify(this.carts)),cart)
     }
+
+    delete = async (cartId, prodId) => {
+        const cart = await this.get(cartId) 
+        const carts = await this.get()
+        const index = cart.products.findIndex(product=>{product.id==prodId})
+        carts.splice(1, index)
+        return await (await fs.promises.writeFile(this.path, JSON.stringify(this.carts)),cart)
+    }
+
+    replace = async (cartId, products)=>{
+        const cart = await this.get(cartId) 
+        cart.products = products
+        return await (await fs.promises.writeFile(this.path, JSON.stringify(this.carts)),cart)
+    }
+
+    getNextId(){
+        let size = this.carts.length
+        return size > 0 ? this.carts[size-1].id + 1 : 1 
+    }   
 }
-export default CartManager
+//module.exports = ProductManager;
+
+export default CartManager;

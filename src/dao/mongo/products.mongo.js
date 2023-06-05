@@ -1,28 +1,20 @@
 import ProductModel from "./models/products.model.js"
-import CustomError from "../../errors/custom_errors.js"
-import EErros from "../../errors/enums.js"
-import { generateProdErrorInfo } from "../../errors/info.js"
 
 export default class Product {
     constructor() {}
-    get = async() => {
-        return await ProductModel.find().lean().exec()
+    get = async(querySearch='', limit='', page='', sortChoosen='') => {
+        return await ProductModel.paginate(querySearch,{limit: limit || 10, page: page || 1, sort:sortChoosen, lean : true});
     }
 
-    getPaginate = async(search, options) => {
-        return await ProductModel.paginate(search, options)
+    getOne = async (id) => {
+        return await ProductModel.findOne({_id:id}).lean().exec();  
     }
+    getOther = async (other) => {
+        return await ProductModel.findOne(other).lean().exec();        
+    } 
 
-    create = async(data) => {
-        if(!data.title){
-            CustomError.createError({
-                name: "Title creation error",
-                cause: generateProdErrorInfo(),
-                message: "Error trying to create product",
-                code: EErros.INVALID_TYPES_ERROR
-            })
-        }
-        return await ProductModel.create(data)
+    create = async (newProduct)=>{
+        return await ProductModel.create(newProduct)        
     }
 
     getById = async (id) => {
@@ -33,7 +25,7 @@ export default class Product {
         return await ProductModel.deleteOne({_id: id})
     }
 
-    update = async (id, productToUpdate) => {
-        return await ProductModel.updateOne({_id: id}, productToUpdate)
+    update = async (id, updatedProduct) => {
+        return await ProductModel.updateOne({_id:id},{$set: updatedProduct})
     }
 }

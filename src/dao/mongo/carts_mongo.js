@@ -1,21 +1,32 @@
 import CartModel from "./models/cart_model.js"
 
-export default class Cart {
-    constructor() {}
-    get = async() => {
-        return await CartModel.find().lean().exec()
+class CartMongo{
+
+    get = async (id = '') => {
+        if (!id) return await CartModel.find().lean().exec();
+        return await CartModel.findOne({_id:id}).lean().exec()
+    }
+    
+    create= async (cart) => {
+        return await CartModel.create(cart)
+    }
+    
+    update = async (cartId,productId,quantity, exists) => {
+        if (exists == false) return await CartModel.updateOne({_id:cartId},{$push: {products: {product: productId, quantity: quantity}}});
+        else return await CartModel.updateOne({_id: cartId, 'products.product':productId}, {$set: {'products.$.quantity': quantity}}); 
     }
 
-    create = async(data) => {
-        return await CartModel.create(data)
-        
+    clean = async (cartId) => {
+        return await CartModel.updateOne({_id:cartId},{products:[]});
     }
 
-    getById = async (id) => {
-        return await CartModel.findOne({_id: id})
+    delete = async (cartId, prodId) => {
+        return await CartModel.updateOne({_id:cartId},{$pull: {products: {product: prodId}}});
     }
 
-    getByIdLean = async (id) => {
-        return await CartModel.findOne({_id: id}).lean()
+    replace = async (cartId, products)=>{
+        return await CartModel.updateOne({_id:cartId},{products:products});
     }
 }
+
+export default CartMongo;
