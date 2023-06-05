@@ -5,8 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "test": "mocha test/**/*.js",
     "start": "node src/app.js",
-    "test": "mocha test/**/*.js"
+    "dev": "nodemon src/app.js"
   },
   "keywords": [],
   "author": "",
