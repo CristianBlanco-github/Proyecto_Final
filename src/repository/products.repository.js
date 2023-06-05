@@ -1,4 +1,4 @@
-import ProductDTO from '../DAO/DTO/products.dto.js'
+import ProductDTO from '../dao/DTO/products.dto.js'
 import CustomError from "../errors/custom_errors.js";
 import { generateProductErrorInfo,generateCodeErrorInfo } from '../errors/info.js';
 import EnumErrors from "../errors/enums.js";
