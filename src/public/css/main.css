@@ -77,3 +77,15 @@
     display: flex;
     align-items: center;
 }
+
+.btn-custom {
+    background-color: #FD611A; /* Cambia el color de fondo */
+    color: #f9f9f9; /* Cambia el color del texto */
+}
+.btn-custom:hover,
+.btn-custom:focus {
+  /* Estilos para el estado de "hover" y "focus" */
+  /* Puedes agregar estilos adicionales aquí si lo deseas */
+  border: 1px solid #FD611A; /* Mantén el borde al pasar el cursor */
+  font-family: "Arial", sans-serif; /* Mantén la fuente personalizada */
+}

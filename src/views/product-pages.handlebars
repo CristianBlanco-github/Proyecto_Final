@@ -1,27 +1,15 @@
 <p class="fs-4">Productos disponibles</p>
-<table class="table table-dark table-striped table-hover">
-    <thead>
-        <tr>
-            <th scope="col"><strong>Producto</strong></th>
-            <th scope="col" class="d-none d-sm-table-cell"><strong>Descripción</strong></th>
-            <th scope="col"><strong>Precio</strong></th>
-            <th scope="col" class="d-none d-sm-table-cell"><strong>Código</strong></th>
-            <th scope="col" class="d-none d-sm-table-cell"><strong>Stock</strong></th>
-            <th scope="col" class="d-none d-sm-table-cell"><strong>Categoría</strong></th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="estilos-listado">
     {{#each products.payload}}
-        <tr>
-            <th scope="row" align="center"> <a href="/views/products/{{this._id}}" style="text-decoration: none; color: white"><img class="rounded" src="{{thumbnails.[0]}}" alt="img_product" style="width: 100px;height: 100px; object-fit:cover"> <br>{{this.title}}</a></th>
-            <td class="d-none d-sm-table-cell">{{this.description}}</td>
-            <td>{{this.price}}</td>
-            <td class="d-none d-sm-table-cell">{{this.code}}</td>
-            <td class="d-none d-sm-table-cell">{{this.stock}}</td>
-            <td class="d-none d-sm-table-cell">{{this.category}}</td>
-            <td><button class="btn btn-success" type="button" name="addToCart" id="{{this._id}}">Agregar al carrito</button></td>
-        </tr>
+    <div class="tarjeta-producto">
+            <p scope="row" align="center"> <a href="/views/products/{{this._id}}" style="text-decoration: none; color: white"><img class="rounded" src="{{thumbnails.[0]}}" alt="img_product" style="width: 100px;height: 100px; object-fit:cover"> <br>{{this.title}}</a></p>
+            <p>Objeto:{{this.description}}</p>
+            <p>Precio:${{this.price}}</p>
+            <p>Code:{{this.code}}</p>
+            <p>Stock:{{this.stock}}</p>
+            <p>Categoria:{{this.category}}</p>
+            <p><button class="btn btn-custom" type="button" name="addToCart" id="{{this._id}}">Agregar al carrito</button></p>
+    </div>
     {{/each}}  
     </tbody>
 </table>
@@ -29,8 +17,9 @@
     <a class="btn btn-danger" href="{{products.prevLink}}">Página Anterior</a>
 {{/if}}
 {{#if products.hasNextPage}}
-    <a class="btn btn-success" href="{{products.nextLink}}">Página Siguiente</a>
+    <a class="btn btn-custom" href="{{products.nextLink}}">Página Siguiente</a>
 {{/if}}
+</div>
 <br>
 <br>
 <script src="/js/product_buttons.js"></script>
