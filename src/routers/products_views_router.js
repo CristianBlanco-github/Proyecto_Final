@@ -1,23 +1,33 @@
-import { Router } from "express";
-import productModel from "../dao/models/products_model.js";
-const router=Router()
+import {Router} from 'express'
+import passport from "passport"
+import { cartDetail, failLoginView, failRegisterView, getProductByIdView, getProductsView, homeView, loginView, realtimeProductsView, registerView, reminderView,userManager,userManagerSel } from '../controllers/views.controller.js';
+import { passportCall, authorization} from "../utils.js";
 
-router.get('/', async (req, res) =>{
-    const limit=req.query?.limit||10
-    const page = req.query?.page||1
-    const filter = req.query?.filter||''
-    //ascendente 1 y descendente -1
-    const sort = req.query?.sort || req.body?.sort || "";
-    const search={}
-    if (filter) {
-        search.title=filter
-    }
-    const options={limit,page,sort: { price: sort || -1 },lean:true}
-    const data = await productModel.paginate(search,options)
-    // console.log(JSON.stringify(data,null,2,'\t'))
 
-    const user = req.session.user
-    res.render('products',{data,user})
-})
+const router = Router()
 
-export default router
+router.get('/products', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['PUBLIC']), getProductsView)
+
+router.get('/products/:pid',  passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['PUBLIC']), getProductByIdView)
+
+router.get('/home',  passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['PUBLIC']), homeView)
+
+router.get('/realtimeproducts',  passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['PUBLIC']), realtimeProductsView)
+
+router.get('/carts/:cid',  passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['USER', 'ADMIN', 'PREMIUM']),  cartDetail)
+
+router.get('/login', loginView)
+
+router.get('/register', registerView)
+
+router.get('/failregister', failRegisterView)
+
+router.get('/faillogin', failLoginView)
+
+router.get('/reminder', reminderView)
+
+router.get('/usermanager/:uid', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN']),  userManager )
+
+router.get('/usermanager-sel', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN']),  userManagerSel )
+
+export default router;

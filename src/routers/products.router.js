@@ -1,25 +1,20 @@
 import {Router} from "express"
-import { getAll, getAllRL, getById, deleteOne, create, updateOne } from "../controler/product.controler.js"
+import { authorization, passportCall } from "../utils.js"
+import { getProducts, getProductById, addProduct, updateProductById, deleteProduct, mockingProducts } from '../controllers/products.controller.js';
+
 
 const router = Router()
 
-//GET
-router.get("/", getAll)
+router.get('/products', getProducts)
 
-//GET REALTIME
-router.get("/realtimeproducts", getAllRL)
+router.get('/products/:pid', getProductById)
 
-//GET BY ID
-router.get("/:id", getById)
+router.get('/mockingproducts', mockingProducts)
 
-//DELETE
-router.delete("/:pid", deleteOne)
+router.post('/', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN','PREMIUM']), addProduct)
 
-//POST
-router.post("/", create)
+router.put('/:pid', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN','PREMIUM']), updateProductById)
 
-//PUT
-router.put("/:pid", updateOne)
+router.delete('/:pid', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN','PREMIUM']), deleteProduct)
 
-
-export default router
+export default router;

@@ -1,71 +1,37 @@
 import { Router } from "express";
 import passport from "passport";
-import { jwtCookieName } from "../config/credentials.js";
-import { authorization, passportCall } from "../utils.js";
+import { authorization,passportCall } from "../utils.js";
+import { current, empty, githubcallback, goPremium, login, logout, recoverPass, recoverPassAction, register, reminder, uploaddocuments, getUsers, deleteInactive, deleteUser } from '../controllers/session.controller.js';
+import { uploader } from '../multer_utils.js';
 
 const router = Router()
-//perfil
-router.get('/current', passportCall('jwt'), authorization('user'), (req, res)=>{
-    console.log('get: ',req.user);
-    res.render('sessions/profile', {
-        user: req.user.user
-    })
-})
-//Vista para registrar usuarios
-router.get('/register', (req, res) => {
-    res.render('sessions/register')
-})
 
-// API para crear usuarios en la DB
-router.post('/register', passport.authenticate('register', { failureRedirect: '/session/failregister' }), async (req, res) => {
-    res.redirect('/session/login')
-})
-router.get('/failregister', (req, res) => {
-    console.log('Fail Strategy');
-    res.send({ error: "Failed" })
-})
+router.get('/', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN','USER','PREMIUM']), getUsers)
 
-// Vista de Login
-router.get('/login', (req, res) => {
-    res.render('sessions/login', {style: "/css/login.css"})
-})
+router.delete('/', passportCall('current', {session:false, failureRedirect:'/views/login'}), authorization(['ADMIN']), deleteInactive)
 
-// API para login
-router.post('/login', passport.authenticate('login', { failureRedirect: '/session/faillogin' }), async (req, res) => {
-    
-    if (!req.user) {
-        return res.status(400).send({ status: "error", error: "Invalid credentiales" })
-    }
-    res.cookie(jwtCookieName, req.user.token).redirect('/products')
-})
-router.get('/faillogin', (req, res) => {
-    res.send({error: "Fail Login"})
-})
+router.post('/register', passport.authenticate('register', {session:false, failureRedirect:'/views/failregister'}), register)
 
-router.get('/profile', (req, res) => {
-    res.json(req.session.user)
-})
+router.post('/login', passport.authenticate('login', {session:false, failureRedirect:'/views/faillogin'}), login)
 
-// Cerrar Session
-router.get('/logout', (req, res) => {
-    res.clearCookie(jwtCookieName).redirect('/session/login');
-})
+router.get('/login-github', passport.authenticate('github'), empty)
 
-// Iniciar sesión con Github
-router.get(
-    '/github',
-    passport.authenticate('github', {scope: ['user:email']}),
-    async(req, res) => {}
-)
+router.get('/githubcallback', passport.authenticate('github', {session:false, failureRedirect:'/views/faillogin'}), githubcallback)
 
-router.get(
-    '/githubcallback',
-    passport.authenticate('github', {failureRedirect: '/session/login'}),
-    async(req, res) => {
+router.get('/logout', passport.authenticate('current', {session:false}), logout)
 
-        req.session.user = req.user
-        res.redirect('/products')
-    }
-)
+router.get('/current',  passport.authenticate('current', {session:false}), current)
 
-export default router
+router.post('/reminder', reminder)
+
+router.get('/recoverPass/:token', recoverPass)
+
+router.post('/recoverPassAction/:token', recoverPassAction)
+
+router.post('/premium/:uid', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN']), goPremium)
+
+router.post('/delete/:uid', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN']), deleteUser)
+
+router.post('/:uid/documents', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['ADMIN','USER','PREMIUM']),uploader.any(), uploaddocuments)
+
+export default router;

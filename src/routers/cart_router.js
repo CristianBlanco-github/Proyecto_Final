@@ -1,91 +1,25 @@
-import { Router } from "express";
-import cartModel from "../dao/models/cart_model.js";
+import { Router } from "express"
+import { authorization, passportCall } from "../utils.js"
+import { addCart, addProductById, cleanCart, deleteProductFromCart, getCartById, getCarts, replaceCart, replaceProductQuantity, purchaseCart } from '../controllers/carts.controller.js';
 
-const router=Router()
+const router = Router()
 
-//GET
-router.get("/", async (req, res) => {
-    const carts = await cartModel.find().lean().exec()
-    res.json({ carts })
-})
+router.post('/', addCart)
 
-router.get("/:id", async (req, res) => {
-    const id = req.params.id
-    const cart = await cartModel.findOne({_id: id}).lean()
-    const productsInCart = cart.products
-    res.render("cart", {productsInCart})
-})
+router.get('/:cid', getCartById)
 
-//Delete
-router.delete("/:cid/product/:pid",async(req,res)=>{
-    const cartID = req.params.cid
-    const productID = req.params.pid
-    const cart=await cartModel.findById(cartID)
-    if(!cart)return res.status(404).json({status:"error",error:"Carrito no encontrado"})
-    const productIDX=cart.products.findIndex(p=>p.id==productID)
-    if(productIDX<=0)return res.status(404).json({status:"error",error:"Producto no encontrado en el carrito"})
-    cart.products=cart.products.splice(productIDX,1)
-    console.log(cart)
-    await cart.save()
-    res.json({status:"Succes",cart})
-})
+router.get('/', getCarts)
 
-router.delete("/:cid", async (req, res) => {
-    const cartID = req.params.cid
-    const cart = await cartModel.findById(cartID)
-    if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
-    cart.products = []
-    await cart.save()    
-    res.json({status: "Success", cart})
-})
+router.post('/:cid/products/:pid', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['USER','ADMIN','PREMIUM']), addProductById)
 
-//Post
-router.post('/',async(req,res)=>{
-    const newCart = await cartModel.create({products:{}})
-    res.json({status:'success',newCart})
-})
+router.post('/:cid/purchase', passportCall('current', {session:false, failureRedirect:'/views/login'}),authorization(['USER','ADMIN','PREMIUM']), purchaseCart)
 
-router.post("/:cid/product/:pid",async(req, res)=>{
-    const cartID = req.params.cid
-    const productID = req.params.pid
-    const quantity= req.body.quantity||1
-    const cart = await cartModel.findById(cartID)
-    let found =false
-    for (let i = 0; i < cart.products.length; i++) {
-        if (cart.products[i].id==productID) {
-            cart.products[i].quantity++
-            found=true
-            break
-        }
-    }
-    if (found==false) {
-        cart.products.push({id:productID,quantity})
-    }
-    await cart.save()
-    res.json({status:'success', cart})
-    res.redirect("/api/carts/63dc3a34053dd3ab71540deb")
-})
+router.delete('/:cid', cleanCart)
 
-//PUT
-router.put("/:cid/product/:pid", async (req, res) => {
-    const cartID = req.params.cid
-    const productID = req.params.pid
-    const newQuantity = req.body.quantity
-    const cart = await cartModel.findById(cartID)
-    if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
-    const productIDX = cart.products.find(p => p.id == productID)
-    productIDX.quantity = newQuantity
-    await cart.save()
-    res.json({status: "Success", cart})
-})
+router.delete('/:cid/products/:pid', deleteProductFromCart)
 
-router.put("/:cid", async (req, res) => {
-    const cartID = req.params.cid
-    const cartUpdate = req.body
-    const cart = await cartModel.findById(cartID)
-    if(!cart) return res.status(404).json({status: "error", error: "Cart Not Found"})
-    cart.products = cartUpdate
-    await cart.save()
-    res.json({status: "Success", cart})
-})
-export default router
+router.put('/:cid', replaceCart)
+
+router.put('/:cid/products/:pid', replaceProductQuantity)
+
+export default router;

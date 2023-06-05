@@ -1,0 +1,25 @@
+<p class="fs-4">Productos disponibles</p>
+<div class="estilos-listado">
+    {{#each products.payload}}
+    <div class="tarjeta-producto">
+            <p scope="row" align="center"> <a href="/views/products/{{this._id}}" style="text-decoration: none; color: white"><img class="rounded" src="{{thumbnails.[0]}}" alt="img_product" style="width: 100px;height: 100px; object-fit:cover"> <br>{{this.title}}</a></p>
+            <p>Objeto:{{this.description}}</p>
+            <p>Precio:${{this.price}}</p>
+            <p>Code:{{this.code}}</p>
+            <p>Stock:{{this.stock}}</p>
+            <p>Categoria:{{this.category}}</p>
+            <p><button class="btn btn-custom" type="button" name="addToCart" id="{{this._id}}">Agregar al carrito</button></p>
+    </div>
+    {{/each}}  
+    </tbody>
+</table>
+{{#if products.hasPrevPage}}
+    <a class="btn btn-danger" href="{{products.prevLink}}">Página Anterior</a>
+{{/if}}
+{{#if products.hasNextPage}}
+    <a class="btn btn-custom" href="{{products.nextLink}}">Página Siguiente</a>
+{{/if}}
+</div>
+<br>
+<br>
+<script src="/js/product_buttons.js"></script>
