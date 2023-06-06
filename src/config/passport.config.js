@@ -91,18 +91,6 @@ const initializePassport = () => {
         usernameField: 'email'
     }, async (username, password, done) => {
         try {
-            if(username === 'adminCoder@coder.com' && password === 'adminCod3r123') {
-                const admin = {
-                    _id: '63e4ee6a795025c3ccb9b29a',
-                    email: username,
-                    password,
-                    first_name: 'Admin',
-                    last_name: 'Coder',
-                    age: 100,
-                    role: 'admin'
-                }
-                return done(null, admin)
-            }
             const user = await UserService.get(username)
             if(!user) {
                 console.log("NO USER: No hay usuario registrado con ese email");
